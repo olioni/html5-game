@@ -403,6 +403,24 @@ class GameHud extends Phaser.Scene {
   }
   // Game hud preload
   preload() {
+    this.load.spritesheet('mauri1',
+    'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire2_64.png?v=1649479618044', {
+      frameWidth: 64,
+      frameHeight: 64
+    })
+    this.load.spritesheet('mauri2',
+    'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire6_64.png?v=1649479618111', {
+      frameWidth: 64,
+      frameHeight: 64
+    })
+    this.load.spritesheet('mauri3',
+    'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire7_64.png?v=1649479618218', {
+      frameWidth: 64,
+      frameHeight: 64
+    })
+
+    this.load.image('fire', 'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/blue-fire.png?v=1649480738676')
+
     this.load.audio(
       "cheer",
       "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fcheer.wav?v=1609829231162"
@@ -470,6 +488,25 @@ class GameHud extends Phaser.Scene {
         
       }
     }); 
+
+    this.anims.create({
+      key: 'mauri1Anim',
+      frames: 'mauri1',
+      frameRate: 15,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'mauri2Anim',
+      frames: 'mauri2',
+      frameRate: 15,
+      repeat: -1
+    });
+    this.anims.create({
+      key: 'mauri3Anim',
+      frames: 'mauri3',
+      frameRate: 15,
+      repeat: -1
+    });
 
     let taiahaScale = 0.4
 
@@ -552,6 +589,12 @@ class GamePlay extends Phaser.Scene {
     this.load.image('taiaha-tongue-icon', "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20tongue.png?v=1649648105935")
     this.load.image('taiaha-front-icon', "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20front.png?v=1649648109045")
     this.load.image('taiaha-back-icon', "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20back.png?v=1649648115969")
+
+    this.load.spritesheet('magic',
+    'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/1_magicspell_spritesheet.png?v=1649481473924', {
+      frameWidth: 192,
+      frameHeight: 192
+    })
 
     // ====================== player (atlas) =============================
 
@@ -804,6 +847,17 @@ class GamePlay extends Phaser.Scene {
       repeat: -1
     });
 
+    this.anims.create({
+      key: 'magicAnim',
+      frames: 'magic',
+      frameRate: 15,
+    });
+
+    // ========= Mauri flame HUD
+    this.mauriLayer = this.add.layer().setDepth(1005);
+    this.hudX = 750
+
+
     // ====================== Controls ======================
     this.cursors = this.input.keyboard.createCursorKeys();
 
@@ -829,6 +883,12 @@ class GamePlay extends Phaser.Scene {
       allowGravity: false,
       immovable: true
     })
+    this.playerMauriObjects = this.physics.add.group({
+      allowGravity: false,
+      immovable: false
+    })
+
+    this.mauri = this.playerMauriObjects.create(0,0,'magic').setOrigin(0,0).setDepth(1001).setVisible(false)
 
     var cagesObjs = map.createFromObjects('Cages', {
       key: 'kiwiCage',
@@ -847,7 +907,8 @@ class GamePlay extends Phaser.Scene {
       cage.type = cageObj.type
       cage.setDepth(201)
       // console.log(cage)
-      // this.physics.add.overlap(this.player, cage, this.touchingCage, null, this)
+      const cageCollider = this.physics.add.overlap(this.player, cage, this.touchingCage, null, this)
+      cageCollider.name = cage.name 
     })
     // this.cagesObjects
 
@@ -933,7 +994,6 @@ class GamePlay extends Phaser.Scene {
     
     //----- Key colliders/actions
     // this.physics.add.collider(this.player, this.levelObjects);
-    this.physics.add.overlap(this.player, this.cagesObjects, this.touchingCage, null, this)
     this.physics.add.overlap(this.player, this.kiwisObjects, this.touchingKiwi,null,this)
     this.physics.add.overlap(this.player, this.taiahaObjects, this.collectTaiaha, null, this)
     // this.physics.add.overlap(this.player, this.cages, this.touchingCage, null, this)
@@ -1095,6 +1155,17 @@ class GamePlay extends Phaser.Scene {
   // ===== CHECK CAGE FUNCTION =====
   touchingCage(player, cage) {
     if (taiahaObj.taiahaPartsCollected == 4 && taiahaObj.taiahaCollected == true) {
+      
+      const cageCollider = this.physics.world.colliders.getActive().find(function(i){
+        return i.name == cage.name
+      })
+      cageCollider.active = false
+      // show tane mauri animation
+      this.mauri.setVisible(true)
+      this.mauri.play("magicAnim",false)
+      // add mauri flame
+      this.addMauriFlame()
+
       cage.destroy()
     }
   }
@@ -1125,6 +1196,14 @@ class GamePlay extends Phaser.Scene {
       console.log('ALL PARTS COLLECTED!')
       taiahaObj.taiahaCollected = true
     }
+  }
+  addMauriFlame() {
+    this.hudX += 70
+    // add blue flame
+    const mauriFlame = this.add
+      .sprite(this.hudX, 50, "fire")
+      .setScrollFactor(0).setScale(2).setDepth(1003)
+    mauriFlame.play("mauri1Anim",true)
   }
 }
 
