@@ -397,7 +397,7 @@ class GameHud extends Phaser.Scene {
     super("game-hud");
   }
   init() {
-    this.countdownTime = 60
+    this.countdownTime = 120
     this.totalTaiahaParts = 6
     this.currentCoins = 0
   }
@@ -868,23 +868,57 @@ class GamePlay extends Phaser.Scene {
       // let tool = this.taiahaObjects.create(toolObj.x * mapScale, (toolObj.y * mapScale) + mapYIndent, 'tool').setOrigin(0, 0).setScale(mapScale, mapScale)
       // tool.name = toolObj.name
       // tool.type = toolObj.type
+      
       if (taiahaObj.name == 'head') {
         let taiaha = this.taiahaObjects.create(taiahaObj.x * mapScale, (taiahaObj.y * mapScale) + mapYIndent, 'taiaha-head-icon').setOrigin(0, 0).setScale(mapScale, mapScale)
         taiaha.name = taiahaObj.name
         taiaha.type = taiahaObj.type
+        this.tweens.add({
+          targets: taiaha,
+          y: ((taiahaObj.y * mapScale) + mapYIndent) + 20,
+          duration: 2000,
+          ease: 'Sine.easeInOut',
+          repeat: -1,
+          yoyo: true
+        })
       } else if (taiahaObj.name == 'tongue') {
         let taiaha = this.taiahaObjects.create(taiahaObj.x * mapScale, (taiahaObj.y * mapScale) + mapYIndent, 'taiaha-tongue-icon').setOrigin(0, 0).setScale(mapScale, mapScale)
         taiaha.name = taiahaObj.name
         taiaha.type = taiahaObj.type
+        this.tweens.add({
+          targets: taiaha,
+          y: ((taiahaObj.y * mapScale) + mapYIndent) + 20,
+          duration: 2000,
+          ease: 'Sine.easeInOut',
+          repeat: -1,
+          yoyo: true
+        })
       } else if (taiahaObj.name == 'front') {
         let taiaha = this.taiahaObjects.create(taiahaObj.x * mapScale, (taiahaObj.y * mapScale) + mapYIndent, 'taiaha-front-icon').setOrigin(0, 0).setScale(mapScale, mapScale)
         taiaha.name = taiahaObj.name
         taiaha.type = taiahaObj.type
+        this.tweens.add({
+          targets: taiaha,
+          y: ((taiahaObj.y * mapScale) + mapYIndent) + 20,
+          duration: 2000,
+          ease: 'Sine.easeInOut',
+          repeat: -1,
+          yoyo: true
+        })
       } else if (taiahaObj.name == 'back') {
         let taiaha = this.taiahaObjects.create(taiahaObj.x * mapScale, (taiahaObj.y * mapScale) + mapYIndent, 'taiaha-back-icon').setOrigin(0, 0).setScale(mapScale, mapScale)
         taiaha.name = taiahaObj.name
         taiaha.type = taiahaObj.type
+        this.tweens.add({
+          targets: taiaha,
+          y: ((taiahaObj.y * mapScale) + mapYIndent) + 20,
+          duration: 2000,
+          ease: 'Sine.easeInOut',
+          repeat: -1,
+          yoyo: true
+        })
       }
+
     })
 
     // other functions to get objects
@@ -1089,6 +1123,7 @@ class GamePlay extends Phaser.Scene {
     
     if (taiahaObj.taiahaPartsCollected == 4) {
       console.log('ALL PARTS COLLECTED!')
+      taiahaObj.taiahaCollected = true
     }
   }
 }
