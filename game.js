@@ -676,7 +676,7 @@ class GamePlay extends Phaser.Scene {
     bg_layer4.setScrollFactor(1.2,0.9)
     bg_layer3.setScrollFactor(0.5,0.3)
     bg_layer2.setScrollFactor(0.2)
-    bg_layer1.setScrollFactor(0.1)
+    bg_layer1.setScrollFactor(0)
     bg_layer4.setDepth(1000)
     console.log('bg_layer4.widthInPixels',bg_layer4);
     // this.add.tileSprite(game.config.width/2, game.config.height/2, game.config.width, 3000, "kowhaiwhai").setScrollFactor(0.1, 0).setAlpha(0.2).setScale(1);
@@ -876,6 +876,14 @@ class GamePlay extends Phaser.Scene {
         let taiaha = this.taiahaObjects.create(taiahaObj.x * mapScale, (taiahaObj.y * mapScale) + mapYIndent, 'taiaha-tongue-icon').setOrigin(0, 0).setScale(mapScale, mapScale)
         taiaha.name = taiahaObj.name
         taiaha.type = taiahaObj.type
+      } else if (taiahaObj.name == 'front') {
+        let taiaha = this.taiahaObjects.create(taiahaObj.x * mapScale, (taiahaObj.y * mapScale) + mapYIndent, 'taiaha-front-icon').setOrigin(0, 0).setScale(mapScale, mapScale)
+        taiaha.name = taiahaObj.name
+        taiaha.type = taiahaObj.type
+      } else if (taiahaObj.name == 'back') {
+        let taiaha = this.taiahaObjects.create(taiahaObj.x * mapScale, (taiahaObj.y * mapScale) + mapYIndent, 'taiaha-back-icon').setOrigin(0, 0).setScale(mapScale, mapScale)
+        taiaha.name = taiahaObj.name
+        taiaha.type = taiahaObj.type
       }
     })
 
@@ -1052,7 +1060,7 @@ class GamePlay extends Phaser.Scene {
   
   // ===== CHECK CAGE FUNCTION =====
   touchingCage(player, cage) {
-    if (taiahaObj.taiahaPartsCollected == 6 && taiahaObj.taiahaCollected == true) {
+    if (taiahaObj.taiahaPartsCollected == 4 && taiahaObj.taiahaCollected == true) {
       cage.destroy()
     }
   }
@@ -1081,8 +1089,6 @@ class GamePlay extends Phaser.Scene {
     
     if (taiahaObj.taiahaPartsCollected == 4) {
       console.log('ALL PARTS COLLECTED!')
-      taiahaCollected = true
-      console.log(taiahaCollected)
     }
   }
 }
