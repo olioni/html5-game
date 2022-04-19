@@ -622,6 +622,12 @@ class GameHud extends Phaser.Scene {
       frameRate: 15,
       repeat: -1,
     });
+    this.anims.create({
+      key: 'hedgehogRun',
+      frames: 'hedgehogRun',
+      frameRate: 12,
+      repeat: -1
+    })
 
     let taiahaScale = 0.4;
 
@@ -775,14 +781,12 @@ class GamePlay extends Phaser.Scene {
       "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/enemy.png?v=1649904103930"
     );
 
-    this.load.spritesheet(
-      "hedgehog",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_spritesheet.png?v=1650322649136",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
+    this.load.spritesheet('hedgehogRun', 
+      'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_run.png?v=1650364804031', {
+      frameWidth: 32,
+      frameHeight: 32
+    })
+    this.load.image('hedgehogIdle', 'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_idle.png?v=1650364806838')
     this.load.spritesheet(
       "magic",
       "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/1_magicspell_spritesheet.png?v=1649481473924",
@@ -866,8 +870,8 @@ class GamePlay extends Phaser.Scene {
     // ====================== Tiled JSON map ===========================
 
     // OLIONI'S MAP
-    this.load.tilemapTiledJSON("map", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/olioni-map-3.json?v=1650363170751")
-    // this.load.tilemapTiledJSON("map", "../map/olioni-map-3.json");
+    // this.load.tilemapTiledJSON("map", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/olioni-map-3.json?v=1650363170751")
+    this.load.tilemapTiledJSON("map", "../map/olioni-map-3.json");
 
     // ====================== Sound effects ===========================
     this.load.audio(
@@ -1138,12 +1142,6 @@ class GamePlay extends Phaser.Scene {
     });
 
     this.anims.create({
-      key: 'hedgehogIdle',
-      frameRate: 10,
-      repeat: -1
-    })
-
-    this.anims.create({
       key: 'hedgehogRun',
       frames: 'hedgehogRun',
       frameRate: 12,
@@ -1183,8 +1181,7 @@ class GamePlay extends Phaser.Scene {
       allowGravity: false,
       immovable: true,
     });
-    this.boundObjects = this.physics.add
-      .group({
+    this.boundObjects = this.physics.add.group({
         allowGravity: false,
         immovable: true,
       })
@@ -1224,9 +1221,14 @@ class GamePlay extends Phaser.Scene {
     
     var taiahaObjs = map.getObjectLayer("Tools").objects
 
-    var enemyObjs = map.filterObjects(
+    var hedgehogObjs = map.filterObjects(
       "Enemies",
-      (obj) => obj.type == "goomba"
+      (obj) => obj.type == "hedgehog"
+    );
+
+    var beeObjs = map.filterObjects(
+      "Enemies",
+      (obj) => obj.type == "bee"
     );
 
     var boundObjs = map.createFromObjects("Bounds");
@@ -1234,11 +1236,6 @@ class GamePlay extends Phaser.Scene {
     var horizontalPlatformObjs = map.filterObjects(
       "Platforms_moving",
       (obj) => obj.type == "horizontal"
-    );
-
-    var beeObjs = map.filterObjects(
-      "Enemies",
-      (obj) => obj.type == "bee"
     );
 
     console.log("kiwiObjs", kiwiObjs);
@@ -1366,60 +1363,33 @@ class GamePlay extends Phaser.Scene {
       });
     });
 
-    enemyObjs.forEach(enemyObj => {
+    hedgehogObjs.forEach(enemyObj => {
+      console.log('hedgehog')
       let enemy = null
-      let enemyType = enemyObj.data.list[0].value
-      // console.log(enemyObj.data.list[0].value)
-      // if (enemyObj.name == 'goomba') {
-      //   enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'enemy').setOrigin(0, 0).setScale(mapScale, mapScale)
-      //   enemy.name = enemyObj.name
-      //   enemy.type = enemyObj.type
-      //   let random = Phaser.Math.Between(1, 2)
-      //   switch(random) {
-      //     case 1:
-      //       enemy.body.velocity.x = -enemyVelocity
-      //     case 2:
-      //       enemy.body.velocity.x = enemyVelocity
-      //   }
-      // }
-      // if (enemyObj.name == 'hedgehog') {
-      //   console.log('type found')
-      //   enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehog').setOrigin(0, 0).setScale(mapScale, mapScale)
-      //   enemy.name = enemyObj.name
-      //   enemy.type = enemyObj.type
-      //   let random = Phaser.Math.Between(1, 2)
-      //   switch(random) {
-      //     case 1:
-      //       enemy.body.velocity.x = -enemyVelocity
-      //     case 2:
-      //       enemy.body.velocity.x = enemyVelocity
-      //   }
-      //   enemy.play('hedgehogIdle')
-      // }
-      if (enemyType == 'hedgehog') {
-        enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehogIdle').setOrigin(0, 0).setScale(3, 3)
-        enemy.body.setSize(((enemy.body.width) / 1.9), enemy.body.height / 3)
-        enemy.name = enemyObj.name
-        enemy.type = 'hedgehog'
-        let random = Phaser.Math.Between(1, 2)
-        switch(random) {
-          case 1:
-            enemy.body.velocity.x = -enemyVelocity
-          case 2:
-            enemy.body.velocity.x = enemyVelocity
-        }
-        console.log(enemy)
-        enemy.play('hedgehogRun')
+      enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehogIdle').setOrigin(0, 0).setScale(3, 3)
+      enemy.body.setSize(((enemy.body.width) / 1.9), enemy.body.height / 3)
+      enemy.name = enemyObj.name
+      enemy.type = 'hedgehog'
+      let random = Phaser.Math.Between(1, 2)
+      switch(random) {
+        case 1:
+          enemy.body.velocity.x = -enemyVelocity
+        case 2:
+          enemy.body.velocity.x = enemyVelocity
       }
+      console.log(enemy)
+      enemy.play('hedgehogRun')
     });
 
     boundObjs.forEach((boundObj) => {
-      let boundBox = this.boundObjects
-        .create(boundObj.x * mapScale, boundObj.y * mapScale + mapYIndent, null)
-        .setOrigin(0, 0)
-        .setVisible(false);
-      boundBox.name = boundObj.name;
-      boundBox.type = boundObj.type;
+      let boundBox = this.boundObjects.create(boundObj.x * mapScale, (boundObj.y * mapScale) + mapYIndent, null).setOrigin(0, 0).setVisible(false)
+      boundBox.setScale(1.55, 1.55)
+      boundBox.body.setSize(boundBox.width + 4, boundBox.height)
+      boundBox.setOffset(-2, 0)
+      boundBox.x = (boundObj.x * mapScale - 24)
+      boundBox.y = (((boundObj.y * mapScale) + mapYIndent) + 27)
+      boundBox.name = boundObj.name
+      boundBox.type = boundObj.type
     });
 
     // ----- Moving platforms
@@ -1516,13 +1486,7 @@ class GamePlay extends Phaser.Scene {
     this.physics.add.collider(this.enemyObjects, platforms);
     this.physics.add.collider(this.enemyObjects, bridges);
 
-    this.physics.add.collider(
-      this.enemyObjects,
-      this.boundObjects,
-      this.touchingBound,
-      null,
-      this
-    );
+    this.physics.add.collider(this.enemyObjects, this.boundObjects, this.touchingBound, null, this);
 
     //----- Key colliders/actions
     // this.physics.add.collider(this.player, this.levelObjects);
@@ -1803,6 +1767,8 @@ class GamePlay extends Phaser.Scene {
     else if (enemy.body.velocity.y > 0 && enemy.body.velocity.x == 0) {
       enemy.body.velocity.y = enemyVelocity;
     }
+    
+    console.log('touching BOUND')
   }
 
   collisionMovingPlatform(sprite, platform) {
