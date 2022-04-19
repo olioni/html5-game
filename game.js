@@ -24,7 +24,7 @@ window.onload = function () {
     },
     // 5 DIFFERENT SCENES
     scene: [
-      // GameIntro,
+      GameIntro,
       GamePlay,
       GameOver,
       // GameWin,
@@ -81,26 +81,78 @@ let glowTween = null;
 =========================*/
 class GameIntro extends Phaser.Scene {
   constructor() {
-    super("game-intro");
+    super({
+      key: "game-intro",
+      pack: {
+        files: [
+          {
+            type: "plugin",
+            key: "rexwebfontloaderplugin",
+            url: "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexwebfontloaderplugin.min.js",
+            start: true,
+          },
+          {
+            type: "image",
+            key: "tc-logo",
+            url: "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/all%20white.png?v=1649980778495",
+          },
+        ],
+      },
+    });
   }
   // preloads for the intro scene
   preload() {
-    this.load.image(
-      "platform",
-      "https://cdn.glitch.com/f605c78d-cefb-481c-bb78-d09a6bffa1e6%2Fground_grass.png?v=1603601137907"
-    );
-    // this.load.image("background", "https://cdn.glitch.com/f605c78d-cefb-481c-bb78-d09a6bffa1e6%2Fbg_layer1.png?v=1603601139028");
-    this.load.image(
-      "touchSides",
-      "https://cdn.glitch.com/f605c78d-cefb-481c-bb78-d09a6bffa1e6%2Ftouch-sides.png?v=1603601138715"
-    );
+
+    //----- loading screen
+    var width = this.cameras.main.width;
+    var height = this.cameras.main.height;
+
+    // "loading..." text
+    var loadingText = this.make.text({
+      x: width / 2,
+      y: height / 2 - 150,
+      text: "Loading...",
+      style: {
+        font: "20px monospace",
+        fill: "#ffffff",
+      },
+    });
+    loadingText.setOrigin(0.5, 0.5);
+
+    // "made by" text
+    var madeByText = this.make.text({
+      x: width / 2,
+      y: height / 2,
+      text: "game by",
+      style: {
+        font: "20px monospace",
+        fill: "#ffffff",
+      },
+    });
+    madeByText.setOrigin(0.5, 0.5);
+
+    // tai collective logo
+    this.add
+      .image(width / 2, height / 2 + 125, "tc-logo")
+      .setDisplaySize(200, 200);
+
+    // loading bar
+    var progressBar = this.add.graphics();
+    var progressBox = this.add.graphics();
+    progressBox.fillStyle(0x222222, 0.8);
+    progressBox.fillRect(game.config.width / 2 - 320 / 2, game.config.height / 2 - 100, 320, 50);
+
+    // font plugin
+    this.plugins.get("rexwebfontloaderplugin").addToScene(this);
+    this.load.rexWebFont({
+      google: {
+        families: ["Freckle Face", "Finger Paint", "Nosifer"],
+      },
+    });
+
     this.load.image(
       "kowhaiwhai",
       "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fkowhaiwhai.png?v=1609829230478"
-    );
-    this.load.image(
-      "platformer-instructions",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fplatformer-instructions.png?v=1615280452997"
     );
 
     this.load.scenePlugin(
@@ -109,16 +161,361 @@ class GameIntro extends Phaser.Scene {
       "rexUI",
       "rexUI"
     );
+
+    this.load.spritesheet(
+      "mauri1",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire2_64.png?v=1649479618044",
+      {
+        frameWidth: 64,
+        frameHeight: 64,
+      }
+    );
+    this.load.spritesheet(
+      "mauri2",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire6_64.png?v=1649479618111",
+      {
+        frameWidth: 64,
+        frameHeight: 64,
+      }
+    );
+    this.load.spritesheet(
+      "mauri3",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire7_64.png?v=1649479618218",
+      {
+        frameWidth: 64,
+        frameHeight: 64,
+      }
+    );
+
+    this.load.image(
+      "fire",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/blue-fire.png?v=1649480738676"
+    );
+
+    this.load.audio(
+      "cheer",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fcheer.wav?v=1609829231162"
+    );
+
+    //  Load the Google WebFont Loader script
+    this.load.script(
+      "webfont",
+      "//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"
+    );
+
+    // --------- preloads for hud game scene
+    // Taiaha Parts for the HUD
+    this.load.image(
+      "grey-taiaha",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grey%20taiaha%202.png?v=1650343143905"
+    );
+    this.load.image(
+      "tongue-taiaha",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20tongue.png?v=1649646916693"
+    );
+    this.load.image(
+      "head-taiaha",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20head.png?v=1649646913292"
+    );
+    this.load.image(
+      "front-taiaha",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20front.png?v=1649646907989"
+    );
+    this.load.image(
+      "back-taiaha",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20back.png?v=1649646905020"
+    );
+
+    // --------- preloads for main game scene
+     // ====================== tilesheets =============================
+    // spritesheets
+    this.load.image(
+      "ground",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fspritesheet_ground.png?v=1597798791918"
+    );
+    this.load.image(
+      "tiles",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fspritesheet_tiles.png?v=1597798793579"
+    );
+
+    // ====================== images =============================
+    // bridge asset
+    this.load.image(
+      "bridge",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2FbridgeA.png?v=1600812709430"
+    );
+
+    // manu assets
+    this.load.image(
+      "kiwiCage",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/cage.png?v=1648393812074"
+    );
+    this.load.image(
+      "kiwi",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi_idle.png?v=1648539380455"
+    );
+
+    // background assets
+    this.load.image(
+      "background",
+      "https://cdn.glitch.com/f605c78d-cefb-481c-bb78-d09a6bffa1e6%2Fbg_layer1.png?v=1603601139028"
+    );
+    this.load.image(
+      "Layer 1",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%201.png?v=1648355031363"
+    );
+    this.load.image(
+      "Layer 2",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%202.png?v=1648355106217"
+    );
+    this.load.image(
+      "Layer 3",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%203.png?v=1648355112261"
+    );
+    this.load.image(
+      "Layer 4",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%204.png?v=1648355125295"
+    );
+
+    // taiaha assets
+    this.load.image(
+      "taiaha-head-icon",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20head.png?v=1649647763222"
+    );
+    this.load.image(
+      "taiaha-tongue-icon",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20tongue.png?v=1649648105935"
+    );
+    this.load.image(
+      "taiaha-front-icon",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20front.png?v=1649648109045"
+    );
+    this.load.image(
+      "taiaha-back-icon",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20back.png?v=1649648115969"
+    );
+    this.load.image(
+      "taiaha-glow",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha-glow.png?v=1649904081002"
+    );
+
+    // floating platforms
+    this.load.image(
+      "grass-start",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grass-start.png?v=1650343665394"
+    );
+    this.load.image(
+      "grass",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grass.png?v=1650343665394"
+    );
+    this.load.image(
+      "grass-end",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grass-end.png?v=1650343665542"
+    );
+    this.load.image(
+      "moving-platform",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/floating-platform.png?v=1650347959424"
+    );
+
+    this.load.image(
+      "enemy",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/enemy.png?v=1649904103930"
+    );
+
+    this.load.spritesheet('hedgehogRun', 
+      'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_run.png?v=1650364804031', {
+      frameWidth: 32,
+      frameHeight: 32
+    })
+    this.load.image('hedgehogIdle', 'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_idle.png?v=1650364806838')
+    this.load.spritesheet(
+      "magic",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/1_magicspell_spritesheet.png?v=1649481473924",
+      {
+        frameWidth: 192,
+        frameHeight: 192,
+      }
+    );
+
+    // TANE (From Ariki Creative)
+    this.load.spritesheet(
+      "taneIdle",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Ftane-idle.png?v=1606611069685",
+      {
+        frameWidth: 128,
+        frameHeight: 128,
+      }
+    );
+
+    this.load.spritesheet(
+      "taneJump",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Ftane-jump.png?v=1606611070167",
+      {
+        frameWidth: 128,
+        frameHeight: 128,
+      }
+    );
+
+    this.load.spritesheet(
+      "taneRun",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Ftane-run.png?v=1606611070188",
+      {
+        frameWidth: 128,
+        frameHeight: 128,
+      }
+    );
+    this.load.spritesheet(
+      "taneAttack",
+      "https://cdn.glitch.com/5095b2d7-4d22-4866-a3b8-5f744eb40eb0%2F128-Attack%20Sprite.png?v=1602576237547",
+      {
+        frameWidth: 128,
+        frameHeight: 128,
+      }
+    );
+    this.load.spritesheet(
+      "taneDeath",
+      "https://cdn.glitch.com/5095b2d7-4d22-4866-a3b8-5f744eb40eb0%2F128-Death-Sprite.png?v=1602576237169",
+      {
+        frameWidth: 128,
+        frameHeight: 128,
+      }
+    );
+
+    this.load.spritesheet(
+      "kiwiIdle",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-idle.png?v=1649057443589",
+      {
+        frameWidth: 128,
+        frameHeight: 108,
+      }
+    );
+
+    this.load.spritesheet(
+      "kiwiRun",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-walk.png?v=1649059409627",
+      {
+        frameWidth: 128,
+        frameHeight: 128,
+      }
+    );
+
+    this.load.spritesheet(
+      "bee",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/bee-spritesheet-25x30.png?v=1650344750092",
+      {
+        frameWidth: 25,
+        frameHeight: 30,
+      }
+    );
+    this.load.spritesheet(
+      "kiwiInCage",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-idle-in-cage.png?v=1650368645983",
+      {
+        frameWidth: 128,
+        frameHeight: 108,
+      }
+    );
+
+    // ====================== Tiled JSON map ===========================
+
+    // OLIONI'S MAP
+    // this.load.tilemapTiledJSON("map", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/olioni-map-3.json?v=1650363170751")
+    this.load.tilemapTiledJSON("map", "../map/olioni-map-3.json");
+
+    // ====================== Sound effects ===========================
+    this.load.audio(
+      "hurt",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fbad.ogg?v=1609829228399"
+    );
+    this.load.audio(
+      "good",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fgood.ogg?v=1609829222070"
+    );
+    this.load.audio(
+      "maleJump1",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%202.wav?v=1649892575856"
+    );
+    this.load.audio(
+      "maleJump2",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%203.wav?v=1649892576040"
+    );
+    this.load.audio(
+      "maleJump3",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%204.wav?v=1649892575908"
+    );
+    this.load.audio(
+      "maleJump4",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%205.wav?v=1649892576222"
+    );
+    this.load.audio(
+      "maleJump5",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%206.wav?v=1649892576326"
+    );
+    this.load.audio(
+      "maleJump6",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%207.wav?v=1649892576626"
+    );
+    this.load.audio(
+      "maleJump7",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%208.wav?v=1649892576839"
+    );
+    this.load.audio(
+      "maleJump8",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%209.wav?v=1649892577079"
+    );
+    this.load.audio(
+      "maleJump9",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%2010.wav?v=1649892577316"
+    );
+    this.load.audio(
+      "whoosh",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/whoosh.wav?v=1650322824544"
+    );
+    // this.load.audio("ambience", "https://cdn.glitch.me/6ec21438-e8d9-4bed-8695-1a8695773d71/ambience.wav?v=1650322822754")
+    this.load.audio(
+      "music",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Dreamy-Love-Tai-Collective.mp3?v=1650322799783"
+    );
+    //  Load the Google WebFont Loader script
+    this.load.script(
+      "webfont",
+      "//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"
+    );
+
+    // Pre-loader
+    this.load.on("progress", function (value) {
+      console.log(value);
+      progressBar.clear();
+      progressBar.fillStyle(0xffffff, 1);
+      progressBar.fillRect(
+        game.config.width / 2 - 300 / 2,
+        game.config.height / 2 - 90,
+        300 * value,
+        30
+      );
+    });
+    // this.load.on("fileprogress", function (file) {
+    //   console.log(file.src);
+    // });
+    this.load.on("complete", function () {
+      console.log("complete");
+      progressBar.destroy();
+      progressBox.destroy();
+      loadingText.destroy();
+    });
   }
   // create for the intro scene
   create() {
-    // background layers
-    // this.add.image(240, 320, "background").setScrollFactor(1, 0);
-    this.add.image(240, 320, "Layer 5").setScrollFactor(1, 0);
-    this.add.image(240, 320, "Layer 4").setScrollFactor(1, 0);
-    this.add.image(240, 320, "Layer 3").setScrollFactor(1, 0);
-    this.add.image(240, 320, "Layer 2").setScrollFactor(1, 0);
-    this.add.image(240, 320, "Layer 1").setScrollFactor(1, 0);
+
+// intro background
+this.add.image(game.config.width/2, game.config.height/2, "background").setOrigin(0.5,0.5)
+
+this.anims.create({
+  key: 'kiwiInCage',
+  frames: 'kiwiInCage',
+  frameRate: 6,
+  repeat: -1
+})
 
     // kowhaiwhai pattern
     this.add
@@ -134,79 +531,85 @@ class GameIntro extends Phaser.Scene {
       .setScale(1);
 
     // dialog ONE (Using rexUI)
-    this.dialog1 = this.rexUI.add
-      .dialog({
-        x: game.config.width / 2,
-        y: game.config.height / 2,
-        width: 500,
-        background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x533d8e),
-        content: this.createLabel(
-          this,
-          "Find the keys to help unlock\nTāne's Action step tokens",
-          50,
-          50
-        ),
-        description: this.add.image(0, 0, "platformer-instructions"),
-        actions: [this.createLabel(this, "NEXT", 10, 10)],
-        space: {
-          left: 20,
-          right: 20,
-          top: 50,
-          bottom: 20,
-          content: 20,
-          toolbarItem: 5,
-          choice: 15,
-          action: 15,
-        },
-        align: {
-          center: "center",
-          actions: "right", // 'center'|'left'|'right'
-        },
-        click: {
-          mode: "release",
-        },
-      })
-      .layout()
-      // .drawBounds(this.add.graphics(), 0xff0000)
-      .popUp(1000);
-
-    // dialog TWO
-    this.dialog2 = this.rexUI.add
-      .dialog({
-        x: game.config.width / 2,
-        y: game.config.height / 2,
-        width: 500,
-        background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x533d8e),
-        content: this.createLabel(
-          this,
-          "Hold space button to jump.\nThe longer you hold space the higher Tāne can jump!",
-          50,
-          50
-        ),
-        // description:  this.add.image(0, 0, "platformer-instructions"),
-        actions: [this.createLabel(this, "BEGIN", 10, 10)],
-        space: {
-          left: 20,
-          right: 20,
-          top: 50,
-          bottom: 20,
-          content: 20,
-          toolbarItem: 5,
-          choice: 15,
-          action: 15,
-        },
-        align: {
-          content: "center",
-          actions: "right", // 'center'|'left'|'right'
-        },
-
-        click: {
-          mode: "release",
-        },
-      })
-      .layout()
-      // .drawBounds(this.add.graphics(), 0xff0000)
-      .setVisible(false);
+   this.dialog1 = this.rexUI.add
+   .dialog({
+     x: game.config.width / 2,
+     y: game.config.height / 2,
+     width: 200,
+     background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 10, 0x533d8e),
+     content: this.createLabel(
+       this,
+       "Collect all 4 pieces of Tane's taiaha",
+       20,
+       20
+     ),
+     description: this.add.image(0,0,"grey-taiaha").setDisplaySize(80, 40)
+      ,
+     actions: [this.createLabel(this, "NEXT", 10, 10)],
+     space: {
+       left: 20,
+       right: 20,
+       top: 50,
+       bottom: 20,
+       content: 20,
+       toolbarItem: 5,
+       choice: 15,
+       action: 15,
+       description: 25,
+      //  descriptionLeft: 200,
+      //  descriptionRight: 200,
+     },
+     align: {
+       content: "center",
+       description: "center",
+       actions: "right", // 'center'|'left'|'right'
+     },
+     click: {
+       mode: "release",
+     },
+   })
+   .layout()
+  //  .drawBounds(this.add.graphics(), 0xff0000)
+   .popUp(1000);
+    
+   // dialog TWO
+   this.dialog2 = this.rexUI.add
+   .dialog({
+     x: game.config.width / 2,
+     y: game.config.height / 2,
+     width: 300,
+     background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x533d8e),
+     content: this.createLabel(
+       this,
+       "So you can use the taiaha to free the trapped manu",
+       10,
+       10
+     ),
+     description: this.add.sprite(0, 0, "kiwiInCage").setScale(0.25).play("kiwiInCage").setDisplaySize(128, 108),
+     actions: [this.createLabel(this, "START GAME", 10, 10)],
+     space: {
+       left: 20,
+       right: 20,
+       top: 50,
+       bottom: 20,
+       content: 20,
+       toolbarItem: 5,
+       choice: 15,
+       action: 15,
+       descriptionLeft: 150,
+       descriptionRight: 150,
+     },
+     align: {
+       content: "center",
+       actions: "right", // 'center'|'left'|'right'
+     },
+     click: {
+       mode: "release",
+     },
+   })
+   .layout()
+  //  .drawBounds(this.add.graphics(), 0xff0000)
+   .setVisible(false);
 
     var tween = this.tweens.add({
       targets: [this.dialog1, this.dialog2],
@@ -232,27 +635,30 @@ class GameIntro extends Phaser.Scene {
     this.dialog2.on(
       "button.click",
       function (button) {
-        if (button.text === "BEGIN") {
+        if (button.text === "START GAME") {
           console.log("starting game");
+          this.scene.start("game-hud")
           this.scene.start("game-play");
-          // this.scene.start("game-hud")
         }
       },
       this
     );
   }
   // settings for the dialog labels
+  // settings for the dialog labels
   createLabel(scene, text, spaceTop, spaceBottom) {
     return scene.rexUI.add.label({
       width: 40, // Minimum width of round-rectangle
       height: 40, // Minimum height of round-rectangle
-      background: scene.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0xffffff),
-      text: scene.add.text(0, 0, text, {
-        fontSize: "24px",
-        color: "#533d8e",
-        stroke: "#533d8e",
-        strokeThickness: 2,
-      }),
+      background: scene.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x8f80b6),
+      text: scene.add
+        .text(0, 0, text, {
+          fontFamily: "Freckle Face",
+          fontSize: "24px",
+          color: "#ffffff",
+        })
+        .setShadow(2, 2, "#333333", 2, false, true)
+        .setAlign("center"),
       space: {
         left: 10,
         right: 10,
@@ -484,68 +890,7 @@ class GameHud extends Phaser.Scene {
   }
   // Game hud preload
   preload() {
-    this.load.spritesheet(
-      "mauri1",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire2_64.png?v=1649479618044",
-      {
-        frameWidth: 64,
-        frameHeight: 64,
-      }
-    );
-    this.load.spritesheet(
-      "mauri2",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire6_64.png?v=1649479618111",
-      {
-        frameWidth: 64,
-        frameHeight: 64,
-      }
-    );
-    this.load.spritesheet(
-      "mauri3",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/fire7_64.png?v=1649479618218",
-      {
-        frameWidth: 64,
-        frameHeight: 64,
-      }
-    );
-
-    this.load.image(
-      "fire",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/blue-fire.png?v=1649480738676"
-    );
-
-    this.load.audio(
-      "cheer",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fcheer.wav?v=1609829231162"
-    );
-
-    //  Load the Google WebFont Loader script
-    this.load.script(
-      "webfont",
-      "//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"
-    );
-
-    // Taiaha Parts for the HUD
-    this.load.image(
-      "grey-taiaha",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grey%20taiaha%202.png?v=1650343143905"
-    );
-    this.load.image(
-      "tongue-taiaha",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20tongue.png?v=1649646916693"
-    );
-    this.load.image(
-      "head-taiaha",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20head.png?v=1649646913292"
-    );
-    this.load.image(
-      "front-taiaha",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20front.png?v=1649646907989"
-    );
-    this.load.image(
-      "back-taiaha",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha%20back.png?v=1649646905020"
-    );
+    // hud assets preloaded already in game-intro
   }
   // Game hud create
   create() {
@@ -690,248 +1035,7 @@ class GamePlay extends Phaser.Scene {
     this.attackFinished = false
   }
   preload() {
-    // ====================== tilesheets =============================
-    // spritesheets
-    this.load.image(
-      "ground",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fspritesheet_ground.png?v=1597798791918"
-    );
-    this.load.image(
-      "tiles",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fspritesheet_tiles.png?v=1597798793579"
-    );
-
-    // ====================== images =============================
-    // bridge asset
-    this.load.image(
-      "bridge",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2FbridgeA.png?v=1600812709430"
-    );
-
-    // manu assets
-    this.load.image(
-      "kiwiCage",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/cage.png?v=1648393812074"
-    );
-    this.load.image(
-      "kiwi",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi_idle.png?v=1648539380455"
-    );
-
-    // background assets
-    this.load.image(
-      "Layer 1",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%201.png?v=1648355031363"
-    );
-    this.load.image(
-      "Layer 2",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%202.png?v=1648355106217"
-    );
-    this.load.image(
-      "Layer 3",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%203.png?v=1648355112261"
-    );
-    this.load.image(
-      "Layer 4",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Layer%204.png?v=1648355125295"
-    );
-
-    // taiaha assets
-    this.load.image(
-      "taiaha-head-icon",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20head.png?v=1649647763222"
-    );
-    this.load.image(
-      "taiaha-tongue-icon",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20tongue.png?v=1649648105935"
-    );
-    this.load.image(
-      "taiaha-front-icon",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20front.png?v=1649648109045"
-    );
-    this.load.image(
-      "taiaha-back-icon",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/ICON%20taiaha%20back.png?v=1649648115969"
-    );
-    this.load.image(
-      "taiaha-glow",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/taiaha-glow.png?v=1649904081002"
-    );
-
-    // floating platforms
-    this.load.image(
-      "grass-start",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grass-start.png?v=1650343665394"
-    );
-    this.load.image(
-      "grass",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grass.png?v=1650343665394"
-    );
-    this.load.image(
-      "grass-end",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/grass-end.png?v=1650343665542"
-    );
-    this.load.image(
-      "moving-platform",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/floating-platform.png?v=1650347959424"
-    );
-
-    this.load.image(
-      "enemy",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/enemy.png?v=1649904103930"
-    );
-
-    this.load.spritesheet('hedgehogRun', 
-      'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_run.png?v=1650364804031', {
-      frameWidth: 32,
-      frameHeight: 32
-    })
-    this.load.image('hedgehogIdle', 'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_idle.png?v=1650364806838')
-    this.load.spritesheet(
-      "magic",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/1_magicspell_spritesheet.png?v=1649481473924",
-      {
-        frameWidth: 192,
-        frameHeight: 192,
-      }
-    );
-
-    // TANE (From Ariki Creative)
-    this.load.spritesheet(
-      "taneIdle",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Ftane-idle.png?v=1606611069685",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
-
-    this.load.spritesheet(
-      "taneJump",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Ftane-jump.png?v=1606611070167",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
-
-    this.load.spritesheet(
-      "taneRun",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Ftane-run.png?v=1606611070188",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
-    this.load.spritesheet(
-      "taneAttack",
-      "https://cdn.glitch.com/5095b2d7-4d22-4866-a3b8-5f744eb40eb0%2F128-Attack%20Sprite.png?v=1602576237547",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
-    this.load.spritesheet(
-      "taneDeath",
-      "https://cdn.glitch.com/5095b2d7-4d22-4866-a3b8-5f744eb40eb0%2F128-Death-Sprite.png?v=1602576237169",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
-
-    this.load.spritesheet(
-      "kiwiIdle",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-idle.png?v=1649057443589",
-      {
-        frameWidth: 128,
-        frameHeight: 108,
-      }
-    );
-
-    this.load.spritesheet(
-      "kiwiRun",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-walk.png?v=1649059409627",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
-
-    this.load.spritesheet(
-      "bee",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/bee-spritesheet-25x30.png?v=1650344750092",
-      {
-        frameWidth: 25,
-        frameHeight: 30,
-      }
-    );
-
-    // ====================== Tiled JSON map ===========================
-
-    // OLIONI'S MAP
-    // this.load.tilemapTiledJSON("map", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/olioni-map-3.json?v=1650363170751")
-    this.load.tilemapTiledJSON("map", "../map/olioni-map-3.json");
-
-    // ====================== Sound effects ===========================
-    this.load.audio(
-      "hurt",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fbad.ogg?v=1609829228399"
-    );
-    this.load.audio(
-      "good",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fgood.ogg?v=1609829222070"
-    );
-    this.load.audio(
-      "maleJump1",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%202.wav?v=1649892575856"
-    );
-    this.load.audio(
-      "maleJump2",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%203.wav?v=1649892576040"
-    );
-    this.load.audio(
-      "maleJump3",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%204.wav?v=1649892575908"
-    );
-    this.load.audio(
-      "maleJump4",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%205.wav?v=1649892576222"
-    );
-    this.load.audio(
-      "maleJump5",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%206.wav?v=1649892576326"
-    );
-    this.load.audio(
-      "maleJump6",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%207.wav?v=1649892576626"
-    );
-    this.load.audio(
-      "maleJump7",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%208.wav?v=1649892576839"
-    );
-    this.load.audio(
-      "maleJump8",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%209.wav?v=1649892577079"
-    );
-    this.load.audio(
-      "maleJump9",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Jump%2010.wav?v=1649892577316"
-    );
-    this.load.audio(
-      "whoosh",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/whoosh.wav?v=1650322824544"
-    );
-    // this.load.audio("ambience", "https://cdn.glitch.me/6ec21438-e8d9-4bed-8695-1a8695773d71/ambience.wav?v=1650322822754")
-    this.load.audio(
-      "music",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Dreamy-Love-Tai-Collective.mp3?v=1650322799783"
-    );
-    //  Load the Google WebFont Loader script
-    this.load.script(
-      "webfont",
-      "//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"
-    );
+   
   }
 
   create() {
@@ -1751,13 +1855,16 @@ class GamePlay extends Phaser.Scene {
     this.scene.start("game-over", { player: player });
   }
   touchingBound(enemy, bound) {
+    console.log('enemy x',enemy.body.velocity.x);
     // was moving right
     if (enemy.body.velocity.x > 0 && enemy.body.velocity.y == 0) {
       enemy.body.velocity.x = -enemyVelocity;
+      enemy.setFlipX(true);
     } 
     // was moving left
-    else if (enemy.body.velocity.x < 0 && enemy.body.velocity.y == 0) {
+    else if (enemy.body.velocity.x <= 0 && enemy.body.velocity.y == 0) {
       enemy.body.velocity.x = enemyVelocity;
+      enemy.setFlipX(false);
     }
     // was moving up
     else if (enemy.body.velocity.y < 0 && enemy.body.velocity.x == 0) {

@@ -145,7 +145,7 @@
                  "type":"bee",
                  "visible":true,
                  "width":0,
-                 "x":3968,
+                 "x":3200,
                  "y":1664
                 }, 
                 {
@@ -401,16 +401,17 @@
                  "id":165,
                  "name":"platform1",
                  "point":true,
-                 "properties":
-                    {
-                     "customDuration":4000,
-                     "relativeToDestination":2000
-                    },
-                 "propertytypes":
-                    {
-                     "customDuration":"int",
-                     "relativeToDestination":"int"
-                    },
+                 "properties":[
+                        {
+                         "name":"customDuration",
+                         "type":"int",
+                         "value":4000
+                        }, 
+                        {
+                         "name":"relativeToDestination",
+                         "type":"int",
+                         "value":2000
+                        }],
                  "rotation":0,
                  "type":"horizontal",
                  "visible":true,
@@ -921,6 +922,6 @@
         }],
  "tilewidth":128,
  "type":"map",
- "version":1.1,
+ "version":"1.8",
  "width":137
 }
