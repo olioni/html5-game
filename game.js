@@ -1100,11 +1100,39 @@ class GamePlay extends Phaser.Scene {
 
     enemyObjs.forEach(enemyObj => {
       let enemy = null
-      console.log(enemyObj)
-      if (enemyObj.type == 'goomba') {
-        enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'enemy').setOrigin(0, 0).setScale(mapScale, mapScale)
+      let enemyType = enemyObj.data.list[0].value
+      // console.log(enemyObj.data.list[0].value)
+      // if (enemyObj.name == 'goomba') {
+      //   enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'enemy').setOrigin(0, 0).setScale(mapScale, mapScale)
+      //   enemy.name = enemyObj.name
+      //   enemy.type = enemyObj.type
+      //   let random = Phaser.Math.Between(1, 2)
+      //   switch(random) {
+      //     case 1:
+      //       enemy.body.velocity.x = -enemyVelocity
+      //     case 2:
+      //       enemy.body.velocity.x = enemyVelocity
+      //   }
+      // }
+      // if (enemyObj.name == 'hedgehog') {
+      //   console.log('type found')
+      //   enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehog').setOrigin(0, 0).setScale(mapScale, mapScale)
+      //   enemy.name = enemyObj.name
+      //   enemy.type = enemyObj.type
+      //   let random = Phaser.Math.Between(1, 2)
+      //   switch(random) {
+      //     case 1:
+      //       enemy.body.velocity.x = -enemyVelocity
+      //     case 2:
+      //       enemy.body.velocity.x = enemyVelocity
+      //   }
+      //   enemy.play('hedgehogIdle')
+      // }
+      if (enemyType == 'hedgehog') {
+        enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehogIdle').setOrigin(0, 0).setScale(3, 3)
+        enemy.body.setSize(((enemy.body.width) / 1.9), enemy.body.height / 3)
         enemy.name = enemyObj.name
-        enemy.type = enemyObj.type
+        enemy.type = 'hedgehog'
         let random = Phaser.Math.Between(1, 2)
         switch(random) {
           case 1:
@@ -1112,25 +1140,19 @@ class GamePlay extends Phaser.Scene {
           case 2:
             enemy.body.velocity.x = enemyVelocity
         }
+        console.log(enemy)
+        // enemy.play('hedgehogRun')
       }
-      if (enemyObj.type == 'hedgehog') {
-        console.log('type found')
-        enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehog').setOrigin(0, 0).setScale(mapScale, mapScale)
-        enemy.name = enemyObj.name
-        enemy.type = enemyObj.type
-        let random = Phaser.Math.Between(1, 2)
-        switch(random) {
-          case 1:
-            enemy.body.velocity.x = -enemyVelocity
-          case 2:
-            enemy.body.velocity.x = enemyVelocity
-        }
-        enemy.play('hedgehogIdle')
+      if (enemyType == 'goomba') {
+        console.log('goomba found!')
       }
     })
 
     boundObjs.forEach(boundObj => {
       let boundBox = this.boundObjects.create(boundObj.x * mapScale, (boundObj.y * mapScale) + mapYIndent, null).setOrigin(0, 0).setVisible(false)
+      boundBox.setScale(1.55, 1.55)
+      boundBox.x = (boundObj.x * mapScale - 24)
+      boundBox.y = (((boundObj.y * mapScale) + mapYIndent) + 27)
       boundBox.name = boundObj.name
       boundBox.type = boundObj.type
     })
@@ -1348,8 +1370,14 @@ class GamePlay extends Phaser.Scene {
   }
   touchingBound(enemy, bound) {
     if (enemy.body.velocity.x > 0) {
+      if (enemy.type == 'hedgehog') {
+        enemy.setFlipX(true)
+      }
       enemy.body.velocity.x = -enemyVelocity
     } else {
+      if (enemy.type == 'hedgehog') {
+        enemy.setFlipX(false)
+      }
       enemy.body.velocity.x = enemyVelocity
     }
   }

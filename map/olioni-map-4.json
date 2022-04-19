@@ -201,8 +201,14 @@
                  "id":85,
                  "name":"enemy1",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"enemy-type",
+                         "type":"string",
+                         "value":"hedgehog"
+                        }],
                  "rotation":0,
-                 "type":"hedgehog",
+                 "type":"enemy",
                  "visible":true,
                  "width":0,
                  "x":3200,
@@ -213,48 +219,18 @@
                  "id":94,
                  "name":"enemy2",
                  "point":true,
+                 "properties":[
+                        {
+                         "name":"enemy-type",
+                         "type":"string",
+                         "value":"goomba"
+                        }],
                  "rotation":0,
                  "type":"goomba",
                  "visible":true,
                  "width":0,
                  "x":3200,
                  "y":1792
-                }, 
-                {
-                 "height":0,
-                 "id":96,
-                 "name":"enemy3",
-                 "point":true,
-                 "rotation":0,
-                 "type":"goomba",
-                 "visible":true,
-                 "width":0,
-                 "x":10752,
-                 "y":3328
-                }, 
-                {
-                 "height":0,
-                 "id":104,
-                 "name":"enemy4",
-                 "point":true,
-                 "rotation":0,
-                 "type":"goomba",
-                 "visible":true,
-                 "width":0,
-                 "x":16640,
-                 "y":1408
-                }, 
-                {
-                 "height":0,
-                 "id":109,
-                 "name":"enemy4",
-                 "point":true,
-                 "rotation":0,
-                 "type":"goomba",
-                 "visible":true,
-                 "width":0,
-                 "x":9600,
-                 "y":3200
                 }],
          "opacity":1,
          "type":"objectgroup",
