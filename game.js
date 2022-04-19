@@ -637,7 +637,7 @@ this.anims.create({
       function (button) {
         if (button.text === "START GAME") {
           console.log("starting game");
-          this.scene.start("game-hud")
+          // this.scene.start("game-hud")
           this.scene.start("game-play");
         }
       },
