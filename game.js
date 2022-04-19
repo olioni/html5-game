@@ -577,6 +577,7 @@ class GamePlay extends Phaser.Scene {
     completedYellowMission = false
     completedRedMission = false
     this.jumptimer = 0;
+    this.attackFinished = false
   }
   preload() {
     // ====================== tilesheets =============================
@@ -898,12 +899,13 @@ class GamePlay extends Phaser.Scene {
     });
     this.anims.create({
       key: 'hedgehogIdle',
-      frameRate: 3,
+      frameRate: 10,
       repeat: -1
     })
     this.anims.create({
       key: 'hedgehogRun',
-      frameRate: 5,
+      frames: 'hedgehogRun',
+      frameRate: 12,
       repeat: -1
     })
     // ========= Mauri flame HUD
@@ -1141,7 +1143,7 @@ class GamePlay extends Phaser.Scene {
             enemy.body.velocity.x = enemyVelocity
         }
         console.log(enemy)
-        // enemy.play('hedgehogRun')
+        enemy.play('hedgehogRun')
       }
       if (enemyType == 'goomba') {
         console.log('goomba found!')
@@ -1214,8 +1216,11 @@ class GamePlay extends Phaser.Scene {
           this.whoosh.play(this.fxConfig)
           this.playerAttacking = true
           this.player.play('taneAttack', false)
-          this.player.on('animationcomplete', () => {
-            this.playerAttacking = false
+          this.player.on('animationcomplete', (animation) => {
+            if(animation.key == 'taneAttack') {
+              this.playerAttacking = false
+              this.attackFinished = true
+            }
           })
         }
       } 
@@ -1319,6 +1324,7 @@ class GamePlay extends Phaser.Scene {
         this.addMauriFlame()
 
         cage.destroy()
+        this.attackFinished == false
       }
     }
   }
