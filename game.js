@@ -73,6 +73,7 @@ let countdownTime = 0;
 let keyF = null;
 
 let enemyVelocity = 300;
+let platformVelocity = 50;
 
 let glowTween = null;
 
@@ -321,6 +322,10 @@ class GameIntro extends Phaser.Scene {
       "enemy",
       "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/enemy.png?v=1649904103930"
     );
+    this.load.image(
+      "spikes",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fspikes.png?v=1599014843516"
+    );
 
     this.load.spritesheet('hedgehogRun', 
       'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_run.png?v=1650364804031', {
@@ -475,6 +480,18 @@ class GameIntro extends Phaser.Scene {
     this.load.audio(
       "music",
       "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/Dreamy-Love-Tai-Collective.mp3?v=1650322799783"
+    );
+    this.load.audio(
+      "powerup",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Retro%20Event%20StereoUP%2002.wav?v=1649892494671"
+    );
+    this.load.audio(
+      "die",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/death.mp3?v=1649896854596"
+    );
+    this.load.audio(
+      "dreamSound",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/dream-sound.wav?v=1650243851542"
     );
     //  Load the Google WebFont Loader script
     this.load.script(
@@ -685,8 +702,7 @@ class GameOver extends Phaser.Scene {
   preload() {
     this.load.audio(
       "die",
-      // "https://cdn.glitch.com/e46a9959-9af7-4acd-a785-ff3bc76f44d0%2Fquake-die.ogg?v=1603606001864",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fdie.ogg?v=1609829227262"
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/death.mp3?v=1649896854596"
     );
     this.load.audio(
       "end-music",
@@ -1033,12 +1049,14 @@ class GamePlay extends Phaser.Scene {
     this.isOnPlatform = false;
     this.currentPlatform = null;
     this.attackFinished = false
+    this.movingPlatform = null
   }
   preload() {
    
   }
 
   create() {
+    this.scene.stop("game-intro");
     // ====================== map =============================
     const map = this.make.tilemap({
       key: "map",
@@ -1272,6 +1290,10 @@ class GamePlay extends Phaser.Scene {
       allowGravity: false,
       immovable: true,
     });
+    this.spikeObjects = this.physics.add.group({
+      allowGravity: false,
+      immovable: true,
+    });
     this.taiahaObjects = this.physics.add.group({
       allowGravity: false,
       immovable: true,
@@ -1336,13 +1358,14 @@ class GamePlay extends Phaser.Scene {
     );
 
     var boundObjs = map.createFromObjects("Bounds");
+    var spikeObjs = map.getObjectLayer('Spikes'); 
 
     var horizontalPlatformObjs = map.filterObjects(
       "Platforms_moving",
       (obj) => obj.type == "horizontal"
     );
 
-    console.log("kiwiObjs", kiwiObjs);
+    console.log("spikeObjs", spikeObjs);
 
 
     // ----- Bird Cages
@@ -1383,8 +1406,17 @@ class GamePlay extends Phaser.Scene {
       kiwi.play("kiwiIdle", true);
     });
 
-    let glowScale = 0.4;
+    // ----- Spikes
+    spikeObjs.objects.forEach(spikeObject => {
+      let spike = this.spikeObjects.create(spikeObject.x * mapScale,
+        spikeObject.y * mapScale + mapYIndent, 'spikes').setScale(mapScale).setOrigin(0,1)
+      spike.body.setSize(spike.width, spike.height - 60).setOffset(0,60);
+      this.physics.add.collider(this.player, spike, this.touchingEnemy, null, this);
+    })
 
+
+    // ----- Taiaha
+    let glowScale = 0.4;
     taiahaObjs.forEach((taiahaObj) => {
       let taiaha = null;
       if (taiahaObj.name == "head") {
@@ -1488,8 +1520,8 @@ class GamePlay extends Phaser.Scene {
     boundObjs.forEach((boundObj) => {
       let boundBox = this.boundObjects.create(boundObj.x * mapScale, (boundObj.y * mapScale) + mapYIndent, null).setOrigin(0, 0).setVisible(false)
       boundBox.setScale(1.55, 1.55)
-      boundBox.body.setSize(boundBox.width + 4, boundBox.height)
-      boundBox.setOffset(-2, 0)
+      boundBox.body.setSize(boundBox.width + 8, boundBox.height)
+      boundBox.setOffset(-4, 0)
       boundBox.x = (boundObj.x * mapScale - 24)
       boundBox.y = (((boundObj.y * mapScale) + mapYIndent) + 27)
       boundBox.name = boundObj.name
@@ -1512,25 +1544,33 @@ class GamePlay extends Phaser.Scene {
       movingPlatform.type = movingPlatformObj.type;
       movingPlatform.setDepth(201);
 
+      let random = Phaser.Math.Between(1, 2)
+      switch(random) {
+        case 1:
+          movingPlatform.body.velocity.x = -platformVelocity
+        case 2:
+          movingPlatform.body.velocity.x = platformVelocity
+      }
+
       // tween animation of platform
-      this.tweens.timeline({
-        targets: movingPlatform,
-        loop: -1,
-        yoyo: true,
-        tweens: [
-          {
-            x: movingPlatformObj.x * mapScale + 1000,
-            duration: 4000,
-            ease: "linear",
-          },
-        ],
-        onUpdate: () => {
-          movingPlatform.vx = movingPlatform.body.position.x - movingPlatform.previousX;
-          movingPlatform.vy = movingPlatform.body.position.y - movingPlatform.previousY;
-          movingPlatform.previousX = movingPlatform.body.position.x;
-          movingPlatform.previousY = movingPlatform.body.position.y;
-        },
-      });
+      // this.tweens.timeline({
+      //   targets: movingPlatform,
+      //   loop: -1,
+      //   yoyo: true,
+      //   tweens: [
+      //     {
+      //       x: movingPlatformObj.x * mapScale + 1000,
+      //       duration: 4000,
+      //       ease: "linear",
+      //     },
+      //   ],
+      //   onUpdate: () => {
+      //     movingPlatform.vx = movingPlatform.body.position.x - movingPlatform.previousX;
+      //     movingPlatform.vy = movingPlatform.body.position.y - movingPlatform.previousY;
+      //     movingPlatform.previousX = movingPlatform.body.position.x;
+      //     movingPlatform.previousY = movingPlatform.body.position.y;
+      //   },
+      // });
       //collider
       // player on platform
       this.physics.add.collider( this.player, movingPlatform, this.collisionMovingPlatform, this.isCollisionFromTop, this);
@@ -1591,6 +1631,7 @@ class GamePlay extends Phaser.Scene {
     this.physics.add.collider(this.enemyObjects, bridges);
 
     this.physics.add.collider(this.enemyObjects, this.boundObjects, this.touchingBound, null, this);
+    this.physics.add.collider(this.movingPlatformObjects, this.boundObjects, this.platformTouchingBound, null, this);
 
     //----- Key colliders/actions
     // this.physics.add.collider(this.player, this.levelObjects);
@@ -1644,8 +1685,24 @@ class GamePlay extends Phaser.Scene {
 
     // ensures player sticks to moving platforms
     if (this.isOnPlatform && this.currentPlatform) {
-      this.player.body.position.x += this.currentPlatform.vx;
-      this.player.body.position.y += this.currentPlatform.vy;
+      // console.log('on platform');
+      // console.log('this.currentPlatform',this.currentPlatform);
+      this.movingPlatform = this.currentPlatform
+      
+      // console.log('this.movingPlatform.previousY',this.movingPlatform.previousY);
+      
+      this.movingPlatform.vx = this.movingPlatform.body.position.x - this.movingPlatform.previousX;
+      this.movingPlatform.vy = this.movingPlatform.body.position.y - this.movingPlatform.previousY;
+      this.movingPlatform.previousX = this.movingPlatform.body.position.x;
+      this.movingPlatform.previousY = this.movingPlatform.body.position.y;
+      
+      
+      console.log(' this.movingPlatform.vx', this.movingPlatform.vx);
+          console.log('this.player.body.position.x',this.player.body.position.x);
+          // console.log('this.player.body.position.y',this.player.body.position.y);
+      
+      // this.player.body.position.x += this.movingPlatform.vx;
+      // this.player.body.position.y += this.movingPlatform.vy;
       this.isOnPlatform = false;
       this.currentPlatform = null;
     }
@@ -1815,6 +1872,7 @@ class GamePlay extends Phaser.Scene {
   collectTaiaha(player, taiaha) {
     taiaha.destroy();
     taiahaObj.taiahaPartsCollected += 1;
+    this.sound.play("powerup");
 
     if (taiaha.name == "head") {
       headTaiaha.setVisible(true);
@@ -1855,7 +1913,6 @@ class GamePlay extends Phaser.Scene {
     this.scene.start("game-over", { player: player });
   }
   touchingBound(enemy, bound) {
-    console.log('enemy x',enemy.body.velocity.x);
     // was moving right
     if (enemy.body.velocity.x > 0 && enemy.body.velocity.y == 0) {
       enemy.body.velocity.x = -enemyVelocity;
@@ -1874,8 +1931,24 @@ class GamePlay extends Phaser.Scene {
     else if (enemy.body.velocity.y > 0 && enemy.body.velocity.x == 0) {
       enemy.body.velocity.y = enemyVelocity;
     }
-    
-    console.log('touching BOUND')
+  }
+  platformTouchingBound(platform, bound) {
+    // was moving right
+    if (platform.body.velocity.x > 0 && platform.body.velocity.y == 0) {
+      platform.body.velocity.x = -platformVelocity;
+    } 
+    // was moving left
+    else if (platform.body.velocity.x <= 0 && platform.body.velocity.y == 0) {
+      platform.body.velocity.x = platformVelocity;
+    }
+    // was moving up
+    else if (platform.body.velocity.y < 0 && platform.body.velocity.x == 0) {
+      platform.body.velocity.y = -platformVelocity;
+    }
+    // was moving up
+    else if (platform.body.velocity.y > 0 && platform.body.velocity.x == 0) {
+      platform.body.velocity.y = platformVelocity;
+    }
   }
 
   collisionMovingPlatform(sprite, platform) {
