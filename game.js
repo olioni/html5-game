@@ -681,6 +681,7 @@ class GamePlay extends Phaser.Scene {
     this.jumptimer = 0;
     this.isOnPlatform = false;
     this.currentPlatform = null;
+    this.attackFinished = false
   }
   preload() {
     // ====================== tilesheets =============================
@@ -1137,22 +1138,17 @@ class GamePlay extends Phaser.Scene {
     });
 
     this.anims.create({
-      key: "hedgehogIdle",
-      frames: this.anims.generateFrameNumbers("hedgehog", {
-        frames: [0],
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
+      key: 'hedgehogIdle',
+      frameRate: 10,
+      repeat: -1
+    })
 
     this.anims.create({
-      key: "hedgehogRun",
-      frames: this.anims.generateFrameNumbers("hedgehog", {
-        frames: [4, 5, 6, 7],
-      }),
-      frameRate: 5,
-      repeat: -1,
-    });
+      key: 'hedgehogRun',
+      frames: 'hedgehogRun',
+      frameRate: 12,
+      repeat: -1
+    })
 
     this.anims.create({
       key: "bee",
@@ -1160,7 +1156,7 @@ class GamePlay extends Phaser.Scene {
       frameRate: 15,
       repeat: -1,
     });
-
+   
     // ========= Mauri flame HUD
     this.mauriLayer = this.add.layer().setDepth(1005);
     this.hudX = 750;
@@ -1370,36 +1366,50 @@ class GamePlay extends Phaser.Scene {
       });
     });
 
-    enemyObjs.forEach((enemyObj) => {
-      let enemy = this.enemyObjects
-        .create(
-          enemyObj.x * mapScale,
-          enemyObj.y * mapScale + mapYIndent,
-          "enemy"
-        )
-        .setOrigin(0, 0)
-        .setScale(mapScale, mapScale);
-      enemy.name = enemyObj.name;
-      enemy.type = enemyObj.type;
-      let random = Phaser.Math.Between(1, 2);
-      switch (random) {
-        case 1:
-          enemy.body.velocity.x = -enemyVelocity;
-        case 2:
-          enemy.body.velocity.x = enemyVelocity;
-      }
-      if (enemyObj.type == "hedgehog") {
-        console.log("type found");
-        let enemy = this.enemyObjects
-          .create(
-            enemyObj.x * mapScale,
-            enemyObj.y * mapScale + mapYIndent,
-            "hedgehogIdle"
-          )
-          .setOrigin(0, 0)
-          .setScale(mapScale, mapScale);
-        enemy.name = enemyObj.name;
-        enemy.type = enemyObj.type;
+    enemyObjs.forEach(enemyObj => {
+      let enemy = null
+      let enemyType = enemyObj.data.list[0].value
+      // console.log(enemyObj.data.list[0].value)
+      // if (enemyObj.name == 'goomba') {
+      //   enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'enemy').setOrigin(0, 0).setScale(mapScale, mapScale)
+      //   enemy.name = enemyObj.name
+      //   enemy.type = enemyObj.type
+      //   let random = Phaser.Math.Between(1, 2)
+      //   switch(random) {
+      //     case 1:
+      //       enemy.body.velocity.x = -enemyVelocity
+      //     case 2:
+      //       enemy.body.velocity.x = enemyVelocity
+      //   }
+      // }
+      // if (enemyObj.name == 'hedgehog') {
+      //   console.log('type found')
+      //   enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehog').setOrigin(0, 0).setScale(mapScale, mapScale)
+      //   enemy.name = enemyObj.name
+      //   enemy.type = enemyObj.type
+      //   let random = Phaser.Math.Between(1, 2)
+      //   switch(random) {
+      //     case 1:
+      //       enemy.body.velocity.x = -enemyVelocity
+      //     case 2:
+      //       enemy.body.velocity.x = enemyVelocity
+      //   }
+      //   enemy.play('hedgehogIdle')
+      // }
+      if (enemyType == 'hedgehog') {
+        enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehogIdle').setOrigin(0, 0).setScale(3, 3)
+        enemy.body.setSize(((enemy.body.width) / 1.9), enemy.body.height / 3)
+        enemy.name = enemyObj.name
+        enemy.type = 'hedgehog'
+        let random = Phaser.Math.Between(1, 2)
+        switch(random) {
+          case 1:
+            enemy.body.velocity.x = -enemyVelocity
+          case 2:
+            enemy.body.velocity.x = enemyVelocity
+        }
+        console.log(enemy)
+        enemy.play('hedgehogRun')
       }
     });
 
@@ -1598,19 +1608,19 @@ class GamePlay extends Phaser.Scene {
       }
     }
     if (this.player.body.velocity.x == 0) {
-      if (
-        keyF.isDown == true &&
-        this.player.body.onFloor() &&
-        this.playerAttacking == false &&
-        this.hasAllTaiaha
-      ) {
-        this.whoosh.play(this.fxConfig);
-        this.playerAttacking = true;
-        this.player.play("taneAttack", false);
-        this.player.on("animationcomplete", () => {
-          this.playerAttacking = false;
-        });
-      }
+      if (taiahaObj.taiahaCollected == true && taiahaObj.taiahaPartsCollected >= 4) {
+        if (keyF.isDown == true && this.player.body.onFloor() && this.playerAttacking == false) {
+          this.whoosh.play(this.fxConfig)
+          this.playerAttacking = true
+          this.player.play('taneAttack', false)
+          this.player.on('animationcomplete', (animation) => {
+            if(animation.key == 'taneAttack') {
+              this.playerAttacking = false
+              this.attackFinished = true
+            }
+          })
+        }
+      } 
     }
 
     // Player can jump while walking any direction by pressing the space bar
@@ -1718,7 +1728,8 @@ class GamePlay extends Phaser.Scene {
         // add mauri flame
         this.addMauriFlame();
 
-        cage.destroy();
+        cage.destroy()
+        this.attackFinished == false
       }
     }
   }
