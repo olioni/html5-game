@@ -910,7 +910,7 @@ class GameHud extends Phaser.Scene {
   }
   // Game hud create
   create() {
-    this.cameras.main.fadeIn(2000, 0, 0, 0);
+    this.cameras.main.fadeIn(500, 0, 0, 0);
     // ====================== timer text =============================
     // load google font
     WebFont.load({
@@ -1039,12 +1039,6 @@ class GamePlay extends Phaser.Scene {
   }
   init() {
     this.scene.launch("game-hud");
-    this.gotKeyYellow = false;
-    this.gotKeyGreen = false;
-    this.gotKeyRed = false;
-    completedGreenMission = false;
-    completedYellowMission = false;
-    completedRedMission = false;
     this.jumptimer = 0;
     this.isOnPlatform = false;
     this.currentPlatform = null;
@@ -1195,7 +1189,7 @@ class GamePlay extends Phaser.Scene {
     // Set camera follow player
     this.cameras.main.startFollow(this.player);
     // Set camera fade in
-    this.cameras.main.fadeIn(2000, 0, 0, 0);
+    this.cameras.main.fadeIn(500, 0, 0, 0);
     // this.cameras.main.setZoom(1);
     this.cameras.main.setFollowOffset(0, 0.25);
 
@@ -1364,6 +1358,10 @@ class GamePlay extends Phaser.Scene {
       "Platforms_moving",
       (obj) => obj.type == "horizontal"
     );
+    var verticalPlatformObjs = map.filterObjects(
+      "Platforms_moving",
+      (obj) => obj.type == "vertical"
+    );
 
     console.log("spikeObjs", spikeObjs);
 
@@ -1529,6 +1527,34 @@ class GamePlay extends Phaser.Scene {
     });
 
     // ----- Moving platforms
+    verticalPlatformObjs.forEach((movingPlatformObj) => {
+      console.log('movingPlatformObj', movingPlatformObj);
+      let movingPlatform = this.movingPlatformObjects
+        .create(
+          movingPlatformObj.x * mapScale,
+          movingPlatformObj.y * mapScale + mapYIndent,
+          "moving-platform"
+        )
+        .setOrigin(0.5, 0.5)
+        .setScale(mapScale, mapScale);
+
+      movingPlatform.name = movingPlatformObj.name;
+      movingPlatform.type = movingPlatformObj.type;
+      movingPlatform.setDepth(201);
+
+      let random = Phaser.Math.Between(1, 2)
+      switch (random) {
+        case 1:
+          movingPlatform.body.velocity.y = -platformVelocity
+        case 2:
+          movingPlatform.body.velocity.y = platformVelocity
+      }
+      //collider
+      // player on platform
+      this.physics.add.collider(this.player, movingPlatform, this.collisionMovingPlatform, this.isCollisionFromTop, this);
+      // platform hits end box
+      // this.physics.add.collider( movingPlatform, this.boundObjects,this.touchingBound, null, this);
+    });
     horizontalPlatformObjs.forEach((movingPlatformObj) => {
       console.log('movingPlatformObj', movingPlatformObj);
       let movingPlatform = this.movingPlatformObjects
