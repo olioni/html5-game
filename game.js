@@ -36,16 +36,6 @@ window.onload = function () {
   window.focus();
 };
 
-var tokenGreenOverlay;
-var tokenYellowOverlay;
-var tokenRedOverlay;
-var tokenGreenTabGroup;
-var tokenYellowTabGroup;
-var tokenRedTabGroup;
-var completedGreenMission = false;
-var completedYellowMission = false;
-var completedRedMission = false;
-
 // GLOBAL GAME VARIABLES
 let taiahaObj = {
   taiahaCollected: false,
@@ -73,7 +63,7 @@ let countdownTime = 0;
 let keyF = null;
 
 let enemyVelocity = 300;
-let platformVelocity = 50;
+let platformVelocity = 200;
 
 let glowTween = null;
 
@@ -1044,6 +1034,7 @@ class GamePlay extends Phaser.Scene {
     this.currentPlatform = null;
     this.attackFinished = false
     this.movingPlatform = null
+    this.previousBounds = {}
   }
   preload() {
 
@@ -1078,6 +1069,9 @@ class GamePlay extends Phaser.Scene {
     this.music = this.sound.add("music", musicConfig);
     // this.ambience = this.sound.add("ambience", ambienceConfig)
     this.whoosh = this.sound.add("whoosh", fxConfig);
+    
+    // this.music.play(this.musicConfig);
+    // this.ambience.play(this.ambienceConfig)
 
     // ====================== background =============================
     const bgScale = 2;
@@ -1350,8 +1344,12 @@ class GamePlay extends Phaser.Scene {
       "Enemies",
       (obj) => obj.type == "bee"
     );
+    var beeVerticalObjs = map.filterObjects(
+      "Enemies",
+      (obj) => obj.type == "beeV"
+    );
 
-    var boundObjs = map.createFromObjects("Bounds");
+    var boundObjs = map.getObjectLayer("Bounds");
     var spikeObjs = map.getObjectLayer('Spikes');
 
     var horizontalPlatformObjs = map.filterObjects(
@@ -1363,7 +1361,7 @@ class GamePlay extends Phaser.Scene {
       (obj) => obj.type == "vertical"
     );
 
-    console.log("spikeObjs", spikeObjs);
+    console.log("verticalPlatformObjs", verticalPlatformObjs);
 
 
     // ----- Bird Cages
@@ -1498,7 +1496,7 @@ class GamePlay extends Phaser.Scene {
     });
 
     hedgehogObjs.forEach(enemyObj => {
-      console.log('hedgehog')
+
       let enemy = null
       enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehogIdle').setOrigin(0, 0).setScale(3, 3)
       enemy.body.setSize(((enemy.body.width) / 1.9), enemy.body.height / 3)
@@ -1511,24 +1509,82 @@ class GamePlay extends Phaser.Scene {
         case 2:
           enemy.body.velocity.x = enemyVelocity
       }
-      console.log(enemy)
+    
       enemy.play('hedgehogRun')
     });
 
-    boundObjs.forEach((boundObj) => {
-      let boundBox = this.boundObjects.create(boundObj.x * mapScale, (boundObj.y * mapScale) + mapYIndent, null).setOrigin(0, 0).setVisible(false)
-      boundBox.setScale(1.55, 1.55)
-      boundBox.body.setSize(boundBox.width + 8, boundBox.height)
+    beeObjs.forEach((beeObj, index) => {
+      let bee = this.beeObjects
+        .create(
+          beeObj.x * mapScale,
+          beeObj.y * mapScale + mapYIndent,
+          "bee"
+        )
+        .setOrigin(0.5, 0.5)
+        .setScale(1.5, 1.5)
+        .play("bee")
+      bee.name = beeObj.name;
+      
+      bee.type = beeObj.type;
+      bee.setDepth(202);
+      this.physics.add.overlap(this.player, bee, this.touchingEnemy, null, this);
+    });
+    // bee tween
+    this.tweens.add({
+      targets: this.beeObjects.getChildren(),
+      y: 100,
+      yoyo: true,
+      duration: 2000,
+      ease: 'Sine.easeInOut',
+      repeat: -1,
+      delay: this.tweens.stagger(1000)
+    });
+    // vertical moving bees
+    beeVerticalObjs.forEach((beeObj, index) => {
+      let beeV = this.beeObjects
+        .create(
+          beeObj.x * mapScale,
+          beeObj.y * mapScale + mapYIndent,
+          "bee"
+        )
+        .setOrigin(0.5, 0.5)
+        .setScale(1.5, 1.5)
+        .play("bee")
+        beeV.name = beeObj.name;
+        // create obj in previousBound to store previous hit bound for this beeV
+        this.previousBounds[beeV.name]={previous:""}
+        beeV.type = beeObj.type;
+        beeV.setDepth(202);
+
+      let random = Phaser.Math.Between(1, 2)
+      let randomSpeed = Phaser.Math.Between(150, 450)
+      switch (random) {
+        case 1:
+          beeV.body.velocity.y = -enemyVelocity
+        case 2:
+          beeV.body.velocity.y = enemyVelocity
+      }
+
+      this.physics.add.overlap(this.player, beeV, this.touchingEnemy, null, this);
+      // passing in previousBounds and randomSpeed as variables to collider callback
+      this.physics.add.collider(beeV, this.boundObjects, this.beeVTouchingBound, null,  { this: this, previousBounds:this.previousBounds,randomSpeed:randomSpeed});
+    });
+
+
+    boundObjs.objects.forEach((boundObj) => {
+      let boundBox = this.boundObjects.create(boundObj.x * mapScale, (boundObj.y * mapScale) + mapYIndent, null).setOrigin(0,0).setVisible(false)
+      boundBox.setScale(1.5, 1.5)
+      boundBox.body.setSize(boundBox.width+8, boundBox.height)
       boundBox.setOffset(-4, 0)
-      boundBox.x = (boundObj.x * mapScale - 24)
-      boundBox.y = (((boundObj.y * mapScale) + mapYIndent) + 27)
+      // boundBox.x = (boundObj.x * mapScale - 24)
+      // boundBox.y = (((boundObj.y * mapScale) + mapYIndent) + 27)
       boundBox.name = boundObj.name
       boundBox.type = boundObj.type
     });
 
     // ----- Moving platforms
     verticalPlatformObjs.forEach((movingPlatformObj) => {
-      console.log('movingPlatformObj', movingPlatformObj);
+
       let movingPlatform = this.movingPlatformObjects
         .create(
           movingPlatformObj.x * mapScale,
@@ -1536,25 +1592,28 @@ class GamePlay extends Phaser.Scene {
           "moving-platform"
         )
         .setOrigin(0.5, 0.5)
-        .setScale(mapScale, mapScale);
+        .setScale(mapScale*0.5, mapScale*0.5);
 
       movingPlatform.name = movingPlatformObj.name;
+      this.previousBounds[movingPlatform.name]={previous:""}
       movingPlatform.type = movingPlatformObj.type;
       movingPlatform.setDepth(201);
 
       let random = Phaser.Math.Between(1, 2)
+      let randomSpeed = Phaser.Math.Between(150, 350)
       switch (random) {
         case 1:
-          movingPlatform.body.velocity.y = -platformVelocity
+          movingPlatform.body.velocity.y = -randomSpeed
         case 2:
-          movingPlatform.body.velocity.y = platformVelocity
+          movingPlatform.body.velocity.y = randomSpeed
       }
       //collider
       // player on platform
       this.physics.add.collider(this.player, movingPlatform, this.collisionMovingPlatform, this.isCollisionFromTop, this);
-      // platform hits end box
-      // this.physics.add.collider( movingPlatform, this.boundObjects,this.touchingBound, null, this);
+      // passing in previousBounds and randomSpeed as variables to collider callback
+      this.physics.add.collider(movingPlatform, this.boundObjects, this.platformVTouchingBound, null,  { this: this, previousBounds:this.previousBounds, randomSpeed: randomSpeed});
     });
+
     horizontalPlatformObjs.forEach((movingPlatformObj) => {
       console.log('movingPlatformObj', movingPlatformObj);
       let movingPlatform = this.movingPlatformObjects
@@ -1604,48 +1663,8 @@ class GamePlay extends Phaser.Scene {
       // this.physics.add.collider( movingPlatform, this.boundObjects,this.touchingBound, null, this);
     });
 
-    // ----- Moving platforms
-    beeObjs.forEach((beeObj, index) => {
-      let bee = this.beeObjects
-        .create(
-          beeObj.x * mapScale,
-          beeObj.y * mapScale + mapYIndent,
-          "bee"
-        )
-        .setOrigin(0.5, 0.5)
-        .setScale(1.5, 1.5)
-        .play("bee")
-      bee.name = beeObj.name;
-      bee.type = beeObj.type;
-      bee.setDepth(201);
 
-      // // tween animation of platform
-      // this.tweens.timeline({
-      //   targets: bee,
-      //   loop: -1,
-      //   yoyo: true,
-      //   tweens: [
-      //     {
-      //       y: beeObj.y * mapScale + mapYIndent + -200,
-      //       duration: 2000,
-      //       ease: "linear",
-      //       startDelay: 100 * index
-      //     },
-      //   ],
-      // });
-      //collider
-      this.physics.add.overlap(this.player, bee, this.touchingEnemy, null, this);
-    });
 
-    this.tweens.add({
-      targets: this.beeObjects.getChildren(),
-      y: 100,
-      yoyo: true,
-      duration: 2000,
-      ease: 'Sine.easeInOut',
-      repeat: -1,
-      delay: this.tweens.stagger(1000)
-    });
 
 
 
@@ -1696,8 +1715,6 @@ class GamePlay extends Phaser.Scene {
 
     this.playerAttacking = false;
 
-    this.music.play(this.musicConfig);
-    // this.ambience.play(this.ambienceConfig)
   }
 
   /* ================================
@@ -1711,17 +1728,17 @@ class GamePlay extends Phaser.Scene {
     const playerVelocity = 350;
 
     // ensures player sticks to moving platforms
-    if (this.isOnPlatform && this.currentPlatform) {
-      this.movingPlatform = this.currentPlatform
-      this.movingPlatform.vx = this.movingPlatform.body.position.x - this.movingPlatform.previousX;
-      this.movingPlatform.vy = this.movingPlatform.body.position.y - this.movingPlatform.previousY;
-      this.movingPlatform.previousX = this.movingPlatform.body.position.x;
-      this.movingPlatform.previousY = this.movingPlatform.body.position.y;
+    if ( this.currentPlatform) {
+      // this.movingPlatform = this.currentPlatform
+      this.currentPlatform.vx = this.currentPlatform.body.position.x - this.currentPlatform.previousX;
+      this.currentPlatform.vy = this.currentPlatform.body.position.y - this.currentPlatform.previousY;
+      this.currentPlatform.previousX = this.currentPlatform.body.position.x;
+      this.currentPlatform.previousY = this.currentPlatform.body.position.y;
       // in the first instance there is no previousXY so return if NaN
-      if (isNaN(this.movingPlatform.vx) || isNaN(this.movingPlatform.vy)) return
+      if (isNaN(this.currentPlatform.vx)) return
       // make playert xy change relative to movement of platforms
-      this.player.body.position.x += this.movingPlatform.vx;
-      this.player.body.position.y += this.movingPlatform.vy;
+      this.player.body.position.x += this.currentPlatform.vx;
+      // this.player.body.position.y += this.movingPlatform.vy;
       this.isOnPlatform = false;
       this.currentPlatform = null;
     }
@@ -1944,14 +1961,38 @@ class GamePlay extends Phaser.Scene {
     }
     // was moving up
     else if (enemy.body.velocity.y < 0 && enemy.body.velocity.x == 0) {
-      enemy.body.velocity.y = -enemyVelocity;
+      enemy.body.velocity.y = enemyVelocity;
+
     }
     // was moving up
     else if (enemy.body.velocity.y > 0 && enemy.body.velocity.x == 0) {
-      enemy.body.velocity.y = enemyVelocity;
+      enemy.body.velocity.y = -enemyVelocity;
     }
   }
+  beeVTouchingBound(enemy, bound) {
+
+    // check previous for this enemy
+    if (bound.name == this.previousBounds[enemy.name].previous) return
+  
+    // was moving up
+    if (enemy.body.velocity.y <= 0 && enemy.body.velocity.x == 0) {
+
+      // enemy.body.velocity.y = enemyVelocity;
+      enemy.body.velocity.y = this.randomSpeed;
+    }
+    // was moving up
+    else if (enemy.body.velocity.y > 0 && enemy.body.velocity.x == 0) {
+      // enemy.setVelocityY(0)
+      // enemy.body.velocity.y = -enemyVelocity;
+      enemy.body.velocity.y = -this.randomSpeed;
+    }
+
+    this.previousBounds[enemy.name].previous = bound.name
+  
+  }
   platformTouchingBound(platform, bound) {
+    //make sure its not same as previous bound
+
     // was moving right
     if (platform.body.velocity.x > 0 && platform.body.velocity.y == 0) {
       platform.body.velocity.x = -platformVelocity;
@@ -1962,12 +2003,28 @@ class GamePlay extends Phaser.Scene {
     }
     // was moving up
     else if (platform.body.velocity.y < 0 && platform.body.velocity.x == 0) {
-      platform.body.velocity.y = -platformVelocity;
+      platform.body.velocity.y = platformVelocity;
     }
     // was moving up
     else if (platform.body.velocity.y > 0 && platform.body.velocity.x == 0) {
-      platform.body.velocity.y = platformVelocity;
+      platform.body.velocity.y = -platformVelocity;
     }
+
+  }
+  platformVTouchingBound(platform, bound) {
+    //make sure its not same as previous bound
+    if (bound.name == this.previousBounds[platform.name].previous) return    
+
+    // was moving up
+    if (platform.body.velocity.y < 0 && platform.body.velocity.x == 0) {
+      platform.body.velocity.y = this.randomSpeed;
+    }
+    // was moving up
+    else if (platform.body.velocity.y > 0 && platform.body.velocity.x == 0) {
+      platform.body.velocity.y = -this.randomSpeed;
+    }
+
+    this.previousBounds[platform.name].previous = bound.name
   }
 
   collisionMovingPlatform(sprite, platform) {
