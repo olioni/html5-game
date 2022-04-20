@@ -228,7 +228,7 @@ class GameIntro extends Phaser.Scene {
     );
 
     // --------- preloads for main game scene
-     // ====================== tilesheets =============================
+    // ====================== tilesheets =============================
     // spritesheets
     this.load.image(
       "ground",
@@ -327,7 +327,7 @@ class GameIntro extends Phaser.Scene {
       "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fspikes.png?v=1599014843516"
     );
 
-    this.load.spritesheet('hedgehogRun', 
+    this.load.spritesheet('hedgehogRun',
       'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_run.png?v=1650364804031', {
       frameWidth: 32,
       frameHeight: 32
@@ -524,15 +524,15 @@ class GameIntro extends Phaser.Scene {
   // create for the intro scene
   create() {
 
-// intro background
-this.add.image(game.config.width/2, game.config.height/2, "background").setOrigin(0.5,0.5)
+    // intro background
+    this.add.image(game.config.width / 2, game.config.height / 2, "background").setOrigin(0.5, 0.5)
 
-this.anims.create({
-  key: 'kiwiInCage',
-  frames: 'kiwiInCage',
-  frameRate: 6,
-  repeat: -1
-})
+    this.anims.create({
+      key: 'kiwiInCage',
+      frames: 'kiwiInCage',
+      frameRate: 6,
+      repeat: -1
+    })
 
     // kowhaiwhai pattern
     this.add
@@ -548,85 +548,85 @@ this.anims.create({
       .setScale(1);
 
     // dialog ONE (Using rexUI)
-   this.dialog1 = this.rexUI.add
-   .dialog({
-     x: game.config.width / 2,
-     y: game.config.height / 2,
-     width: 200,
-     background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 10, 0x533d8e),
-     content: this.createLabel(
-       this,
-       "Collect all 4 pieces of Tane's taiaha",
-       20,
-       20
-     ),
-     description: this.add.image(0,0,"grey-taiaha").setDisplaySize(80, 40)
-      ,
-     actions: [this.createLabel(this, "NEXT", 10, 10)],
-     space: {
-       left: 20,
-       right: 20,
-       top: 50,
-       bottom: 20,
-       content: 20,
-       toolbarItem: 5,
-       choice: 15,
-       action: 15,
-       description: 25,
-      //  descriptionLeft: 200,
-      //  descriptionRight: 200,
-     },
-     align: {
-       content: "center",
-       description: "center",
-       actions: "right", // 'center'|'left'|'right'
-     },
-     click: {
-       mode: "release",
-     },
-   })
-   .layout()
-  //  .drawBounds(this.add.graphics(), 0xff0000)
-   .popUp(1000);
-    
-   // dialog TWO
-   this.dialog2 = this.rexUI.add
-   .dialog({
-     x: game.config.width / 2,
-     y: game.config.height / 2,
-     width: 300,
-     background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x533d8e),
-     content: this.createLabel(
-       this,
-       "So you can use the taiaha to free the trapped manu",
-       10,
-       10
-     ),
-     description: this.add.sprite(0, 0, "kiwiInCage").setScale(0.25).play("kiwiInCage").setDisplaySize(128, 108),
-     actions: [this.createLabel(this, "START GAME", 10, 10)],
-     space: {
-       left: 20,
-       right: 20,
-       top: 50,
-       bottom: 20,
-       content: 20,
-       toolbarItem: 5,
-       choice: 15,
-       action: 15,
-       descriptionLeft: 150,
-       descriptionRight: 150,
-     },
-     align: {
-       content: "center",
-       actions: "right", // 'center'|'left'|'right'
-     },
-     click: {
-       mode: "release",
-     },
-   })
-   .layout()
-  //  .drawBounds(this.add.graphics(), 0xff0000)
-   .setVisible(false);
+    this.dialog1 = this.rexUI.add
+      .dialog({
+        x: game.config.width / 2,
+        y: game.config.height / 2,
+        width: 200,
+        background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 10, 0x533d8e),
+        content: this.createLabel(
+          this,
+          "Collect all 4 pieces of Tane's taiaha",
+          20,
+          20
+        ),
+        description: this.add.image(0, 0, "grey-taiaha").setDisplaySize(80, 40)
+        ,
+        actions: [this.createLabel(this, "NEXT", 10, 10)],
+        space: {
+          left: 20,
+          right: 20,
+          top: 50,
+          bottom: 20,
+          content: 20,
+          toolbarItem: 5,
+          choice: 15,
+          action: 15,
+          description: 25,
+          //  descriptionLeft: 200,
+          //  descriptionRight: 200,
+        },
+        align: {
+          content: "center",
+          description: "center",
+          actions: "right", // 'center'|'left'|'right'
+        },
+        click: {
+          mode: "release",
+        },
+      })
+      .layout()
+      //  .drawBounds(this.add.graphics(), 0xff0000)
+      .popUp(1000);
+
+    // dialog TWO
+    this.dialog2 = this.rexUI.add
+      .dialog({
+        x: game.config.width / 2,
+        y: game.config.height / 2,
+        width: 300,
+        background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x533d8e),
+        content: this.createLabel(
+          this,
+          "So you can use the taiaha to free the trapped manu",
+          10,
+          10
+        ),
+        description: this.add.sprite(0, 0, "kiwiInCage").setScale(0.25).play("kiwiInCage").setDisplaySize(128, 108),
+        actions: [this.createLabel(this, "START GAME", 10, 10)],
+        space: {
+          left: 20,
+          right: 20,
+          top: 50,
+          bottom: 20,
+          content: 20,
+          toolbarItem: 5,
+          choice: 15,
+          action: 15,
+          descriptionLeft: 150,
+          descriptionRight: 150,
+        },
+        align: {
+          content: "center",
+          actions: "right", // 'center'|'left'|'right'
+        },
+        click: {
+          mode: "release",
+        },
+      })
+      .layout()
+      //  .drawBounds(this.add.graphics(), 0xff0000)
+      .setVisible(false);
 
     var tween = this.tweens.add({
       targets: [this.dialog1, this.dialog2],
@@ -684,7 +684,7 @@ this.anims.create({
       },
     });
   }
-  update() {}
+  update() { }
 }
 
 /* ======================
@@ -950,9 +950,9 @@ class GameHud extends Phaser.Scene {
             200,
             50,
             "Parts Collected: " +
-              taiahaObj.taiahaPartsCollected +
-              "/" +
-              taiahaObj.totalTaiahaParts,
+            taiahaObj.taiahaPartsCollected +
+            "/" +
+            taiahaObj.totalTaiahaParts,
             {
               fontFamily: "Freckle Face",
               fontSize: 40,
@@ -1027,7 +1027,7 @@ class GameHud extends Phaser.Scene {
   }
 
   // method to be executed at each frame
-  update() {}
+  update() { }
 }
 
 /* ======================
@@ -1052,7 +1052,7 @@ class GamePlay extends Phaser.Scene {
     this.movingPlatform = null
   }
   preload() {
-   
+
   }
 
   create() {
@@ -1276,7 +1276,7 @@ class GamePlay extends Phaser.Scene {
       frameRate: 15,
       repeat: -1,
     });
-   
+
     // ========= Mauri flame HUD
     this.mauriLayer = this.add.layer().setDepth(1005);
     this.hudX = 750;
@@ -1308,9 +1308,9 @@ class GamePlay extends Phaser.Scene {
       immovable: true,
     });
     this.boundObjects = this.physics.add.group({
-        allowGravity: false,
-        immovable: true,
-      })
+      allowGravity: false,
+      immovable: true,
+    })
       .setVisible(false);
     // Moving
     this.enemyObjects = this.physics.add.group({
@@ -1344,7 +1344,7 @@ class GamePlay extends Phaser.Scene {
       "Birds",
       (obj) => obj.type == "kiwi"
     );
-    
+
     var taiahaObjs = map.getObjectLayer("Tools").objects
 
     var hedgehogObjs = map.filterObjects(
@@ -1358,7 +1358,7 @@ class GamePlay extends Phaser.Scene {
     );
 
     var boundObjs = map.createFromObjects("Bounds");
-    var spikeObjs = map.getObjectLayer('Spikes'); 
+    var spikeObjs = map.getObjectLayer('Spikes');
 
     var horizontalPlatformObjs = map.filterObjects(
       "Platforms_moving",
@@ -1409,8 +1409,8 @@ class GamePlay extends Phaser.Scene {
     // ----- Spikes
     spikeObjs.objects.forEach(spikeObject => {
       let spike = this.spikeObjects.create(spikeObject.x * mapScale,
-        spikeObject.y * mapScale + mapYIndent, 'spikes').setScale(mapScale).setOrigin(0,1)
-      spike.body.setSize(spike.width, spike.height - 60).setOffset(0,60);
+        spikeObject.y * mapScale + mapYIndent, 'spikes').setScale(mapScale).setOrigin(0, 1)
+      spike.body.setSize(spike.width, spike.height - 60).setOffset(0, 60);
       this.physics.add.collider(this.player, spike, this.touchingEnemy, null, this);
     })
 
@@ -1507,7 +1507,7 @@ class GamePlay extends Phaser.Scene {
       enemy.name = enemyObj.name
       enemy.type = 'hedgehog'
       let random = Phaser.Math.Between(1, 2)
-      switch(random) {
+      switch (random) {
         case 1:
           enemy.body.velocity.x = -enemyVelocity
         case 2:
@@ -1530,7 +1530,7 @@ class GamePlay extends Phaser.Scene {
 
     // ----- Moving platforms
     horizontalPlatformObjs.forEach((movingPlatformObj) => {
-      console.log('movingPlatformObj',movingPlatformObj);
+      console.log('movingPlatformObj', movingPlatformObj);
       let movingPlatform = this.movingPlatformObjects
         .create(
           movingPlatformObj.x * mapScale,
@@ -1539,13 +1539,13 @@ class GamePlay extends Phaser.Scene {
         )
         .setOrigin(0.5, 0.5)
         .setScale(mapScale, mapScale);
-      
+
       movingPlatform.name = movingPlatformObj.name;
       movingPlatform.type = movingPlatformObj.type;
       movingPlatform.setDepth(201);
 
       let random = Phaser.Math.Between(1, 2)
-      switch(random) {
+      switch (random) {
         case 1:
           movingPlatform.body.velocity.x = -platformVelocity
         case 2:
@@ -1573,7 +1573,7 @@ class GamePlay extends Phaser.Scene {
       // });
       //collider
       // player on platform
-      this.physics.add.collider( this.player, movingPlatform, this.collisionMovingPlatform, this.isCollisionFromTop, this);
+      this.physics.add.collider(this.player, movingPlatform, this.collisionMovingPlatform, this.isCollisionFromTop, this);
       // platform hits end box
       // this.physics.add.collider( movingPlatform, this.boundObjects,this.touchingBound, null, this);
     });
@@ -1608,7 +1608,7 @@ class GamePlay extends Phaser.Scene {
       //   ],
       // });
       //collider
-      this.physics.add.overlap( this.player, bee, this.touchingEnemy, null, this);
+      this.physics.add.overlap(this.player, bee, this.touchingEnemy, null, this);
     });
 
     this.tweens.add({
@@ -1619,7 +1619,7 @@ class GamePlay extends Phaser.Scene {
       ease: 'Sine.easeInOut',
       repeat: -1,
       delay: this.tweens.stagger(1000)
-  });
+    });
 
 
 
@@ -1630,6 +1630,7 @@ class GamePlay extends Phaser.Scene {
     this.physics.add.collider(this.enemyObjects, platforms);
     this.physics.add.collider(this.enemyObjects, bridges);
 
+    // bounds colliders
     this.physics.add.collider(this.enemyObjects, this.boundObjects, this.touchingBound, null, this);
     this.physics.add.collider(this.movingPlatformObjects, this.boundObjects, this.platformTouchingBound, null, this);
 
@@ -1685,24 +1686,16 @@ class GamePlay extends Phaser.Scene {
 
     // ensures player sticks to moving platforms
     if (this.isOnPlatform && this.currentPlatform) {
-      // console.log('on platform');
-      // console.log('this.currentPlatform',this.currentPlatform);
       this.movingPlatform = this.currentPlatform
-      
-      // console.log('this.movingPlatform.previousY',this.movingPlatform.previousY);
-      
       this.movingPlatform.vx = this.movingPlatform.body.position.x - this.movingPlatform.previousX;
       this.movingPlatform.vy = this.movingPlatform.body.position.y - this.movingPlatform.previousY;
       this.movingPlatform.previousX = this.movingPlatform.body.position.x;
       this.movingPlatform.previousY = this.movingPlatform.body.position.y;
-      
-      
-      console.log(' this.movingPlatform.vx', this.movingPlatform.vx);
-          console.log('this.player.body.position.x',this.player.body.position.x);
-          // console.log('this.player.body.position.y',this.player.body.position.y);
-      
-      // this.player.body.position.x += this.movingPlatform.vx;
-      // this.player.body.position.y += this.movingPlatform.vy;
+      // in the first instance there is no previousXY so return if NaN
+      if (isNaN(this.movingPlatform.vx) || isNaN(this.movingPlatform.vy)) return
+      // make playert xy change relative to movement of platforms
+      this.player.body.position.x += this.movingPlatform.vx;
+      this.player.body.position.y += this.movingPlatform.vy;
       this.isOnPlatform = false;
       this.currentPlatform = null;
     }
@@ -1739,13 +1732,13 @@ class GamePlay extends Phaser.Scene {
           this.playerAttacking = true
           this.player.play('taneAttack', false)
           this.player.on('animationcomplete', (animation) => {
-            if(animation.key == 'taneAttack') {
+            if (animation.key == 'taneAttack') {
               this.playerAttacking = false
               this.attackFinished = true
             }
           })
         }
-      } 
+      }
     }
 
     // Player can jump while walking any direction by pressing the space bar
@@ -1886,9 +1879,9 @@ class GamePlay extends Phaser.Scene {
 
     tally.setText(
       "Parts Collected: " +
-        taiahaObj.taiahaPartsCollected +
-        "/" +
-        taiahaObj.totalTaiahaParts
+      taiahaObj.taiahaPartsCollected +
+      "/" +
+      taiahaObj.totalTaiahaParts
     );
 
     if (taiahaObj.taiahaPartsCollected == 4) {
@@ -1917,7 +1910,7 @@ class GamePlay extends Phaser.Scene {
     if (enemy.body.velocity.x > 0 && enemy.body.velocity.y == 0) {
       enemy.body.velocity.x = -enemyVelocity;
       enemy.setFlipX(true);
-    } 
+    }
     // was moving left
     else if (enemy.body.velocity.x <= 0 && enemy.body.velocity.y == 0) {
       enemy.body.velocity.x = enemyVelocity;
@@ -1936,7 +1929,7 @@ class GamePlay extends Phaser.Scene {
     // was moving right
     if (platform.body.velocity.x > 0 && platform.body.velocity.y == 0) {
       platform.body.velocity.x = -platformVelocity;
-    } 
+    }
     // was moving left
     else if (platform.body.velocity.x <= 0 && platform.body.velocity.y == 0) {
       platform.body.velocity.x = platformVelocity;
