@@ -1476,6 +1476,17 @@
                  "width":128,
                  "x":12160,
                  "y":1024
+                }, 
+                {
+                 "height":128,
+                 "id":404,
+                 "name":"bound1",
+                 "rotation":0,
+                 "type":"bound",
+                 "visible":true,
+                 "width":128,
+                 "x":3456,
+                 "y":3072
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -2439,7 +2450,7 @@
          "y":0
         }],
  "nextlayerid":21,
- "nextobjectid":404,
+ "nextobjectid":405,
  "orientation":"orthogonal",
  "renderorder":"right-down",
  "tiledversion":"1.8.2",
