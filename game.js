@@ -26,7 +26,7 @@ window.onload = function () {
     scene: [
       GameIntro,
       GamePlay,
-      GameOver,
+      // GameOver,
       // GameWin,
       GameHud,
     ],
@@ -331,7 +331,6 @@ class GameIntro extends Phaser.Scene {
         frameHeight: 192,
       }
     );
-
     // TANE (From Ariki Creative)
     this.load.spritesheet(
       "taneIdle",
@@ -377,24 +376,6 @@ class GameIntro extends Phaser.Scene {
     );
 
     this.load.spritesheet(
-      "kiwiIdle",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-idle.png?v=1649057443589",
-      {
-        frameWidth: 128,
-        frameHeight: 108,
-      }
-    );
-
-    this.load.spritesheet(
-      "kiwiRun",
-      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-walk.png?v=1649059409627",
-      {
-        frameWidth: 128,
-        frameHeight: 128,
-      }
-    );
-
-    this.load.spritesheet(
       "bee",
       "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/bee-spritesheet-25x30.png?v=1650344750092",
       {
@@ -410,7 +391,31 @@ class GameIntro extends Phaser.Scene {
         frameHeight: 108,
       }
     );
-
+    // DIFFERENT LOCKED UP BIRDS
+    this.load.spritesheet("kiwiIdle", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-idle.png?v=1649057443589", {
+        frameWidth: 128,
+        frameHeight: 108,
+      })
+    this.load.spritesheet("kiwiRun", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-walk.png?v=1649059409627", {
+      frameWidth: 128,
+      frameHeight: 128,
+    })
+    this.load.spritesheet("tuiIdle", "../spritesheet/tui_idle.png", {
+      frameWidth: 128,
+      frameHeight: 128
+    })
+    this.load.spritesheet("tuiFlying", "../spritesheet/tui_flying.png", {
+      frameWidth: 128,
+      frameHeight: 128
+    })
+    this.load.spritesheet("huiaIdle", "../spritesheet/huia_breathing.png", {
+      frameWidth: 128,
+      frameHeight: 128
+    })
+    this.load.spritesheet("huiaFlying", "../spritesheet/huia_flying.pn", {
+      frameWidth: 128,
+      frameHeight: 128
+    })
     // ====================== Tiled JSON map ===========================
 
     // OLIONI'S MAP
@@ -1237,13 +1242,38 @@ class GamePlay extends Phaser.Scene {
       frameRate: 3,
       repeat: -1,
     });
-
     this.anims.create({
       key: "kiwiRun",
       frames: "kiwiRun",
       frameRate: 10,
       repeat: -1,
     });
+
+    this.anims.create({
+      key: "tuiIdle",
+      frames: "tuiIdle",
+      frameRate: 3,
+      repeat: -1
+    })
+    this.anims.create({
+      key: 'tuiFlying',
+      frames: 'tuiFlying',
+      frameRate: 10,
+      repeat: -1
+    })
+
+    this.anims.create({
+      key: 'huiaIdle',
+      frames: 'huiaIdle',
+      frameRate: 3,
+      repeat: -1
+    })
+    this.anims.create({
+      key: 'huiaFlying',
+      frames: 'huiaFlying',
+      frameRate: 10,
+      repeat: -1
+    })
 
     this.anims.create({
       key: "magicAnim",
@@ -1305,7 +1335,7 @@ class GamePlay extends Phaser.Scene {
       allowGravity: true,
       immovable: true,
     });
-    this.kiwisObjects = this.physics.add.group({
+    this.birdsObjects = this.physics.add.group({
       allowGravity: true,
       immovable: false,
     });
@@ -1332,7 +1362,15 @@ class GamePlay extends Phaser.Scene {
       "Birds",
       (obj) => obj.type == "kiwi"
     );
-
+    var tuiObjs = map.filterObjects(
+      "Birds",
+      (obj) => obj.type == "tui"
+    )
+    var huiaObjs = map.filterObjects(
+      "Birds",
+      (obj) => obj.type == "huia"
+    )
+      
     var taiahaObjs = map.getObjectLayer("Tools").objects
 
     var hedgehogObjs = map.filterObjects(
@@ -1389,7 +1427,7 @@ class GamePlay extends Phaser.Scene {
 
     // ----- Kiwis
     kiwiObjs.forEach((kiwiObj) => {
-      let kiwi = this.kiwisObjects
+      let kiwi = this.birdsObjects
         .create(kiwiObj.x * mapScale, kiwiObj.y * mapScale + mapYIndent, "kiwi")
         .setOrigin(0, 0)
         .setScale(0.5, 0.5);
@@ -1402,6 +1440,29 @@ class GamePlay extends Phaser.Scene {
       kiwi.play("kiwiIdle", true);
     });
 
+    tuiObjs.forEach((tuiObj) => {
+      let tui = this.birdsObjects.create(tuiObj.x * mapScale, tuiObj.y * mapScale + mapYIndent, "tuiIdle").setOrigin(0, 0).setScale(mapScale, mapScale);
+      // tui.body.setSize(tui.width - 30, tui.height - 25).setOffset(0, 13);
+      tui.body.setSize(tui.width, tui.height - 22)
+      this.physics.add.collider(tui, platforms);
+      this.physics.add.collider(tui, bridges);
+      tui.name = tuiObj.name;
+      tui.type = tuiObj.type;
+      tui.setDepth(200);
+      tui.play("tuiIdle", true);
+    });
+    
+    huiaObjs.forEach((huiaObj) => {
+      let huia = this.birdsObjects.create(huiaObj.x * mapScale, huiaObj.y * mapScale + mapYIndent, "huiaIdle").setOrigin(0, 0).setScale(mapScale, mapScale);
+      // tui.body.setSize(tui.width - 30, tui.height - 25).setOffset(0, 13);
+      huia.body.setSize(huia.width, huia.height - 50).setOffset(0, 40)
+      this.physics.add.collider(huia, platforms);
+      this.physics.add.collider(huia, bridges);
+      huia.name = huiaObj.name;
+      huia.type = huiaObj.type;
+      huia.setDepth(200);
+      huia.play("huiaIdle", true);
+    });
     // ----- Spikes
     spikeObjs.objects.forEach(spikeObject => {
       let spike = this.spikeObjects.create(spikeObject.x * mapScale,
@@ -1681,34 +1742,10 @@ class GamePlay extends Phaser.Scene {
 
     //----- Key colliders/actions
     // this.physics.add.collider(this.player, this.levelObjects);
-    this.physics.add.overlap(
-      this.player,
-      this.kiwisObjects,
-      this.touchingKiwi,
-      null,
-      this
-    );
-    this.physics.add.overlap(
-      this.player,
-      this.taiahaObjects,
-      this.collectTaiaha,
-      null,
-      this
-    );
-    this.physics.add.overlap(
-      this.player,
-      this.taiahaGlowObjects,
-      this.touchingGlow,
-      null,
-      this
-    );
-    this.physics.add.overlap(
-      this.player,
-      this.enemyObjects,
-      this.touchingEnemy,
-      null,
-      this
-    );
+    this.physics.add.overlap(this.player, this.birdsObjects, this.touchingBird, null, this);
+    this.physics.add.overlap(this.player, this.taiahaObjects, this.collectTaiaha, null, this);
+    this.physics.add.overlap(this.player, this.taiahaGlowObjects, this.touchingGlow, null, this);
+    this.physics.add.overlap(this.player, this.enemyObjects, this.touchingEnemy, null, this);
 
     // Add new key on the keyboard F, to use as attack button
     keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -1894,13 +1931,27 @@ class GamePlay extends Phaser.Scene {
       }
     }
   }
-  touchingKiwi(player, kiwi) {
+  touchingBird(player, bird) {
     if (taiahaObj.taiahaCollected == true) {
       if (player.body.velocity.x == 0) {
         if (keyF.isDown) {
-          console.log("go kiwi");
-          kiwi.setVelocityX(-200);
-          kiwi.play("kiwiRun", true);
+          let random = Phaser.Math.Between(1, 2)
+          if (random == 1) { bird.setVelocityX(-200); } else { bird.setVelocityX(200) }
+          if (bird.type == "kiwi") {
+            console.log("go kiwi"); 
+            bird.play("kiwiRun", true);
+          } else if (bird.type == "tui") {
+            console.log("go tui")
+            bird.body.velocity.y = -100
+            bird.play("tuiFlying", true)
+          } else if (bird.type == "huia") {
+            console.log("go huia")
+            bird.body.velocity.y = -100
+            // bird.play("huiaFlying", true)
+            if (bird.body.y > 3) {
+              bird.destroy()
+            }
+          }
         }
       }
     }
@@ -1946,7 +1997,7 @@ class GamePlay extends Phaser.Scene {
     mauriFlame.play("mauri1Anim", true);
   }
   touchingEnemy(player, enemy) {
-    this.scene.start("game-over", { player: player });
+    // this.scene.start("game-over", { player: player });
   }
   touchingBound(enemy, bound) {
     // was moving right

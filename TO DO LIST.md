@@ -10,7 +10,7 @@ TO DO LIST:
 - add in the animation that circles around the player
 - move the flames across more
 - change the offset of the glow to be in line with the taiaha 
-- do the touchingCage and touchingKiwi functions after attack animation has played 
+- do the touchingCage and touchingBird functions after attack animation has played 
 
 NOTED BUGS:
 - when the timer runs out, the hud disappears but the flames do not
