@@ -412,7 +412,7 @@ class GameIntro extends Phaser.Scene {
       frameWidth: 128,
       frameHeight: 128
     })
-    this.load.spritesheet("huiaFlying", "../spritesheet/huia_flying.pn", {
+    this.load.spritesheet("huiaFlying", "../spritesheet/huia_flying.png", {
       frameWidth: 128,
       frameHeight: 128
     })
@@ -1936,21 +1936,39 @@ class GamePlay extends Phaser.Scene {
       if (player.body.velocity.x == 0) {
         if (keyF.isDown) {
           let random = Phaser.Math.Between(1, 2)
-          if (random == 1) { bird.setVelocityX(-200); } else { bird.setVelocityX(200) }
           if (bird.type == "kiwi") {
             console.log("go kiwi"); 
+            if (random == 1) { bird.setVelocityX(-200); } else { bird.setVelocityX(200) }
+            if (bird.body.velocity.x == 200) { bird.setFlipX(true) } else {bird.setFlipX(false) }
             bird.play("kiwiRun", true);
           } else if (bird.type == "tui") {
             console.log("go tui")
-            bird.body.velocity.y = -100
             bird.play("tuiFlying", true)
+            this.tweens.add({
+              targets: bird,
+              x: bird.body.x - bird.body.x,
+              y: bird.body.y - bird.body.y,
+              duration: 4000,
+              ease: 'Sine.easeInOut',
+              onComplete: function(tween) {
+                tween.targets[0].destroy()
+                console.log('target destroyed')
+              }
+            })
           } else if (bird.type == "huia") {
             console.log("go huia")
-            bird.body.velocity.y = -100
-            // bird.play("huiaFlying", true)
-            if (bird.body.y > 3) {
-              bird.destroy()
-            }
+            bird.play("huiaFlying", true)
+            this.tweens.add({
+              targets: bird,
+              x: bird.body.x - bird.body.x,
+              y: bird.body.y - bird.body.y,
+              duration: 4000,
+              ease: 'Sine.easeInOut',
+              onComplete: function(tween) {
+                tween.targets[0].destroy()
+                console.log('target destroyed')
+              }
+            })
           }
         }
       }
