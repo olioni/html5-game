@@ -19,7 +19,7 @@ window.onload = function () {
         gravity: {
           y: 900,
         },
-        debug: true,
+        debug: false,
       },
     },
     // 5 DIFFERENT SCENES
@@ -66,6 +66,10 @@ let enemyVelocity = 300;
 let platformVelocity = 200;
 
 let glowTween = null;
+
+let winText = null
+
+let mauriCount = 0
 
 /* ======================
     GAME INTRO SCENE
@@ -799,91 +803,14 @@ class GameWin extends Phaser.Scene {
   }
 
   create() {
-    this.scene.stop("game-hud");
-    this.cameras.main.setBackgroundColor("#533d8e");
-
-    this.sound.stopAll();
-    // load song
-    const musicConfig = {
-      volume: 0.5,
-      loop: false,
-      delay: 3000,
-    };
-    this.cheer = this.sound.add("cheer", musicConfig);
-    this.cheer.play();
-
-    const width = this.scale.width;
-    const height = this.scale.height;
-
-    this.add
-      .tileSprite(
-        game.config.width / 2,
-        game.config.height / 2 + 500,
-        game.config.width,
-        3000,
-        "kowhaiwhai"
-      )
-      .setScrollFactor(0, 0.25)
-      .setAlpha(0.2)
-      .setScale(1);
-
     WebFont.load({
-      google: {
-        families: ["Freckle Face", "Finger Paint", "Nosifer"],
-      },
-      active: () => {
-        this.gameOver = this.add
-          .text(
-            game.config.width / 2,
-            game.config.height / 2 - 100,
-            "You Win!",
-            {
-              fontFamily: "Freckle Face",
-              fontSize: 50,
-              color: "#ffffff",
-            }
-          )
-          .setShadow(2, 2, "#333333", 2, false, true);
-        this.gameOver.setAlign("center");
-        this.gameOver.setOrigin();
-        this.gameOver.setScrollFactor(0);
-
-        this.add
-          .text(
-            game.config.width / 2,
-            game.config.height / 2,
-            "Tino pai to mahi.",
-            {
-              fontFamily: "Finger Paint",
-              fontSize: 20,
-              color: "#ffffff",
-            }
-          )
-          .setShadow(2, 2, "#333333", 2, false, true)
-          .setAlign("center")
-          .setOrigin()
-          .setScrollFactor(0);
-        this.add
-          .text(
-            game.config.width / 2,
-            game.config.height / 2 + 100,
-            "You collected all the actions\n to complete this moemoeā.",
-            {
-              fontFamily: "Finger Paint",
-              fontSize: 20,
-              color: "#ffffff",
-            }
-          )
-          .setShadow(2, 2, "#333333", 2, false, true)
-          .setAlign("center")
-          .setOrigin()
-          .setScrollFactor(0);
-      },
-    });
-
-    this.input.keyboard.once("keydown-SPACE", () => {
-      this.scene.start("game-play");
-    });
+      google: { families: ["Freckle Face", "Finger Paint", "Nosifer"] }
+    })
+    winText = this.add.text(game.config.width / 2, game.config.height / 2, "Nga Mihi Tane! For freeing all the birds you have earned another piece of your dream!", {
+      fontFamily: "Freckle Face",
+      fontSize: 50,
+      color: '#ffffff'
+    }).setShadow(2, 2, "#333333", 2, false, true)
   }
 }
 
@@ -2013,6 +1940,11 @@ class GamePlay extends Phaser.Scene {
       .setScale(2)
       .setDepth(1003);
     mauriFlame.play("mauri1Anim", true);
+    mauriCount += 1
+    if (mauriCount == 6) {
+      console.log('ALL KIWIS FREED! ALL MAURI COLLECTED!')
+      this.finishGame()
+    }
   }
   touchingEnemy(player, enemy) {
     // this.scene.start("game-over", { player: player });
@@ -2106,5 +2038,11 @@ class GamePlay extends Phaser.Scene {
   //Only allow collisions from top
   isCollisionFromTop(sprite, platform) {
     return platform.body.y > sprite.body.y;
+  }
+
+  finishGame() {
+    this.scene.start('game-win')
+    this.scene.stop('game-start')
+    this.scene.stop('game-hud')
   }
 }
