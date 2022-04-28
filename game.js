@@ -450,19 +450,19 @@ class GameIntro extends Phaser.Scene {
         frameHeight: 128,
       }
     );
-    this.load.spritesheet("tuiIdle", "../spritesheet/tui_idle.png", {
+    this.load.spritesheet("tuiIdle", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/tui_idle.png?v=1651113642085", {
       frameWidth: 128,
       frameHeight: 128,
     });
-    this.load.spritesheet("tuiFlying", "../spritesheet/tui_flying.png", {
+    this.load.spritesheet("tuiFlying", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/tui_flying.png?v=1651113642085", {
       frameWidth: 128,
       frameHeight: 128,
     });
-    this.load.spritesheet("huiaIdle", "../spritesheet/huia_breathing.png", {
+    this.load.spritesheet("huiaIdle", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/huia_breathing.png?v=1651113642085", {
       frameWidth: 128,
       frameHeight: 128,
     });
-    this.load.spritesheet("huiaFlying", "../spritesheet/huia_flying.png", {
+    this.load.spritesheet("huiaFlying", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/huia_flying.png?v=1651113642085", {
       frameWidth: 128,
       frameHeight: 128,
     });
@@ -1388,11 +1388,7 @@ class GamePlay extends Phaser.Scene {
       immovable: true,
     });
 
-    this.mauri = this.playerMauriObjects
-      .create(0, 0, "magic")
-      .setOrigin(0, 0)
-      .setDepth(1001)
-      .setVisible(false);
+
 
     var cagesObjs = map.filterObjects("Cages", (obj) => obj.type == "cage");
     var kiwiObjs = map.filterObjects("Birds", (obj) => obj.type == "kiwi");
@@ -1529,7 +1525,7 @@ class GamePlay extends Phaser.Scene {
     let glowScale = 0.4;
     taiahaObjs.forEach((taiahaObj) => {
       let taiaha = null;
-      if (taiahaObj.name == "head") {
+      if (taiahaObj.name == "head" || taiahaObj.name == "head1") {
         taiaha = this.taiahaObjects
           .create(
             taiahaObj.x * mapScale,
@@ -1538,7 +1534,7 @@ class GamePlay extends Phaser.Scene {
           )
           .setOrigin(0.5, 0.5)
           .setScale(mapScale, mapScale);
-      } else if (taiahaObj.name == "tongue") {
+      } else if (taiahaObj.name == "tongue" || taiahaObj.name == "tongue1") {
         taiaha = this.taiahaObjects
           .create(
             taiahaObj.x * mapScale,
@@ -1547,7 +1543,7 @@ class GamePlay extends Phaser.Scene {
           )
           .setOrigin(0.5, 0.5)
           .setScale(mapScale, mapScale);
-      } else if (taiahaObj.name == "front") {
+      } else if (taiahaObj.name == "front" || taiahaObj.name == "front1") {
         taiaha = this.taiahaObjects
           .create(
             taiahaObj.x * mapScale,
@@ -1556,7 +1552,7 @@ class GamePlay extends Phaser.Scene {
           )
           .setOrigin(0.5, 0.5)
           .setScale(mapScale, mapScale);
-      } else if (taiahaObj.name == "back") {
+      } else if (taiahaObj.name == "back" || taiahaObj.name == "back1") {
         taiaha = this.taiahaObjects
           .create(
             taiahaObj.x * mapScale,
@@ -1566,6 +1562,8 @@ class GamePlay extends Phaser.Scene {
           .setOrigin(0.5, 0.5)
           .setScale(mapScale, mapScale);
       }
+      console.log('taiaha',taiaha);
+      console.log('taiahaObj',taiahaObj);
       taiaha.name = taiahaObj.name;
       taiaha.type = taiahaObj.type;
 
@@ -1892,6 +1890,13 @@ class GamePlay extends Phaser.Scene {
     const playerJump = -370;
     const playerVelocity = 350;
 
+    const screenCenterX =
+    this.cameras.main.worldView.x + this.cameras.main.width / 2;
+  const screenCenterY =
+    this.cameras.main.worldView.y + this.cameras.main.height / 2;
+    console.log('screenCenterX',screenCenterX,'screenCenterY',screenCenterY);
+    
+
     // ensures player sticks to moving platforms
 
     if (this.isOnPlatform && this.currentPlatform) {
@@ -2093,8 +2098,14 @@ class GamePlay extends Phaser.Scene {
           });
         cageCollider.active = false;
         // show tane mauri animation
-        this.mauri.setVisible(true);
-        this.mauri.play("magicAnim", false);
+        // this.mauri = this.playerMauriObjects
+        // .create(player.x, player.y, "magic")
+        // .setOrigin(0.5, 0.5)
+        // .setDepth(1001)
+        // .play("magicAnim")
+        // this.mauri.on("animationcomplete", (animation) => {
+        //   this.mauri.destroy() 
+        // });
         // add mauri flame
         this.addMauriFlame();
 
@@ -2199,8 +2210,8 @@ class GamePlay extends Phaser.Scene {
           backTaiaha,
           greyTaiaha,
         ],
-        x: screenCenterX,
-        y: screenCenterY * 0.4 + -100,
+        x: 650,
+        y: 950 * 0.4 + -100,
         duration: 1000,
         // ease: "Bounce", // 'Cubic', 'Elastic', 'Bounce', 'Back'
         //repeat: -1, // -1: infinity
