@@ -23,13 +23,7 @@ window.onload = function () {
       },
     },
     // 5 DIFFERENT SCENES
-    scene: [
-      GameIntro,
-      GamePlay,
-      // GameOver,
-      // GameWin,
-      GameHud,
-    ],
+    scene: [GameIntro, GamePlay, GameOver, GameWin, GameHud],
   };
   // new game bruh
   game = new Phaser.Game(gameConfig);
@@ -52,7 +46,8 @@ let taiahaObj = {
 let tongueTaiaha,
   headTaiaha,
   frontTaiaha,
-  backTaiaha = null;
+  backTaiaha,
+  greyTaiaha = null;
 
 let taiahaCollected = false;
 let tally = null;
@@ -67,9 +62,9 @@ let platformVelocity = 200;
 
 let glowTween = null;
 
-let winText = null
+let winText = null;
 
-let mauriCount = 0
+let mauriCount = 0;
 
 /* ======================
     GAME INTRO SCENE
@@ -97,7 +92,6 @@ class GameIntro extends Phaser.Scene {
   }
   // preloads for the intro scene
   preload() {
-
     //----- loading screen
     var width = this.cameras.main.width;
     var height = this.cameras.main.height;
@@ -135,7 +129,12 @@ class GameIntro extends Phaser.Scene {
     var progressBar = this.add.graphics();
     var progressBox = this.add.graphics();
     progressBox.fillStyle(0x222222, 0.8);
-    progressBox.fillRect(game.config.width / 2 - 320 / 2, game.config.height / 2 - 100, 320, 50);
+    progressBox.fillRect(
+      game.config.width / 2 - 320 / 2,
+      game.config.height / 2 - 100,
+      320,
+      50
+    );
 
     // font plugin
     this.plugins.get("rexwebfontloaderplugin").addToScene(this);
@@ -181,6 +180,39 @@ class GameIntro extends Phaser.Scene {
         frameHeight: 64,
       }
     );
+    this.load.spritesheet(
+      "dreamDiamond",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/dream-piece.png?v=1650241420024",
+      {
+        frameWidth: 480,
+        frameHeight: 480,
+      }
+    );
+    this.load.spritesheet(
+      "fireworksBlue",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Explosion_Crystals_Blue-sheet.png?v=1649907669760",
+      {
+        frameWidth: 88,
+        frameHeight: 86,
+      }
+    );
+    this.load.spritesheet(
+      "fireworksBlue2",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Explosion_Long_Blue-sheet.png?v=1649907851908",
+      {
+        frameWidth: 80,
+        frameHeight: 93,
+      }
+    );
+    this.load.spritesheet(
+      "fireworksRocket",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/Rocket_Blue.png-sheet.png?v=1649908638368",
+      {
+        frameWidth: 7,
+        frameHeight: 52,
+      }
+    );
+    
 
     this.load.image(
       "fire",
@@ -321,12 +353,18 @@ class GameIntro extends Phaser.Scene {
       "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fspikes.png?v=1599014843516"
     );
 
-    this.load.spritesheet('hedgehogRun',
-      'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_run.png?v=1650364804031', {
-      frameWidth: 32,
-      frameHeight: 32
-    })
-    this.load.image('hedgehogIdle', 'https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_idle.png?v=1650364806838')
+    this.load.spritesheet(
+      "hedgehogRun",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_run.png?v=1650364804031",
+      {
+        frameWidth: 32,
+        frameHeight: 32,
+      }
+    );
+    this.load.image(
+      "hedgehogIdle",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/hedgehog_idle.png?v=1650364806838"
+    );
     this.load.spritesheet(
       "magic",
       "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/1_magicspell_spritesheet.png?v=1649481473924",
@@ -396,30 +434,38 @@ class GameIntro extends Phaser.Scene {
       }
     );
     // DIFFERENT LOCKED UP BIRDS
-    this.load.spritesheet("kiwiIdle", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-idle.png?v=1649057443589", {
-      frameWidth: 128,
-      frameHeight: 108,
-    })
-    this.load.spritesheet("kiwiRun", "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-walk.png?v=1649059409627", {
-      frameWidth: 128,
-      frameHeight: 128,
-    })
+    this.load.spritesheet(
+      "kiwiIdle",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-idle.png?v=1649057443589",
+      {
+        frameWidth: 128,
+        frameHeight: 108,
+      }
+    );
+    this.load.spritesheet(
+      "kiwiRun",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/kiwi-walk.png?v=1649059409627",
+      {
+        frameWidth: 128,
+        frameHeight: 128,
+      }
+    );
     this.load.spritesheet("tuiIdle", "../spritesheet/tui_idle.png", {
       frameWidth: 128,
-      frameHeight: 128
-    })
+      frameHeight: 128,
+    });
     this.load.spritesheet("tuiFlying", "../spritesheet/tui_flying.png", {
       frameWidth: 128,
-      frameHeight: 128
-    })
+      frameHeight: 128,
+    });
     this.load.spritesheet("huiaIdle", "../spritesheet/huia_breathing.png", {
       frameWidth: 128,
-      frameHeight: 128
-    })
+      frameHeight: 128,
+    });
     this.load.spritesheet("huiaFlying", "../spritesheet/huia_flying.png", {
       frameWidth: 128,
-      frameHeight: 128
-    })
+      frameHeight: 128,
+    });
     // ====================== Tiled JSON map ===========================
 
     // OLIONI'S MAP
@@ -492,10 +538,33 @@ class GameIntro extends Phaser.Scene {
       "dreamSound",
       "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/dream-sound.wav?v=1650243851542"
     );
+    this.load.audio(
+      "birdSound",
+      "https://cdn.glitch.global/6ec21438-e8d9-4bed-8695-1a8695773d71/bird_sound.wav?v=1651108401367"
+    );
+    this.load.audio(
+      "fireworksSound",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/fireworks.wav?v=1649910586351"
+    );
     //  Load the Google WebFont Loader script
     this.load.script(
       "webfont",
       "//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js"
+    );
+
+    // game-over preloads
+    this.load.audio(
+      "die",
+      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/death.mp3?v=1649896854596"
+    );
+    this.load.audio(
+      "end-music",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fgameover-music.mp3?v=1609829224481"
+    );
+
+    this.load.image(
+      "kowhaiwhai",
+      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fkowhaiwhai.png?v=1609829230478"
     );
 
     // Pre-loader
@@ -522,16 +591,17 @@ class GameIntro extends Phaser.Scene {
   }
   // create for the intro scene
   create() {
-
     // intro background
-    this.add.image(game.config.width / 2, game.config.height / 2, "background").setOrigin(0.5, 0.5)
+    this.add
+      .image(game.config.width / 2, game.config.height / 2, "background")
+      .setOrigin(0.5, 0.5);
 
     this.anims.create({
-      key: 'kiwiInCage',
-      frames: 'kiwiInCage',
+      key: "kiwiInCage",
+      frames: "kiwiInCage",
       frameRate: 6,
-      repeat: -1
-    })
+      repeat: -1,
+    });
 
     // kowhaiwhai pattern
     this.add
@@ -559,8 +629,7 @@ class GameIntro extends Phaser.Scene {
           20,
           20
         ),
-        description: this.add.image(0, 0, "grey-taiaha").setDisplaySize(80, 40)
-        ,
+        description: this.add.image(0, 0, "grey-taiaha").setDisplaySize(80, 40),
         actions: [this.createLabel(this, "NEXT", 10, 10)],
         space: {
           left: 20,
@@ -601,7 +670,11 @@ class GameIntro extends Phaser.Scene {
           10,
           10
         ),
-        description: this.add.sprite(0, 0, "kiwiInCage").setScale(0.25).play("kiwiInCage").setDisplaySize(128, 108),
+        description: this.add
+          .sprite(0, 0, "kiwiInCage")
+          .setScale(0.25)
+          .play("kiwiInCage")
+          .setDisplaySize(128, 108),
         actions: [this.createLabel(this, "START GAME", 10, 10)],
         space: {
           left: 20,
@@ -683,7 +756,7 @@ class GameIntro extends Phaser.Scene {
       },
     });
   }
-  update() { }
+  update() {}
 }
 
 /* ======================
@@ -695,28 +768,20 @@ class GameOver extends Phaser.Scene {
   }
   // propped in data
   init(data) {
+    console.log("game over scene started");
     this.player = data.player;
   }
   // Game Over scene preload
   preload() {
-    this.load.audio(
-      "die",
-      "https://cdn.glitch.global/d000a9ec-7a88-4c14-9cdd-f194575da68e/death.mp3?v=1649896854596"
-    );
-    this.load.audio(
-      "end-music",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fgameover-music.mp3?v=1609829224481"
-    );
-
-    this.load.image(
-      "kowhaiwhai",
-      "https://cdn.glitch.com/cd67e3a9-81c5-485d-bf8a-852d63395343%2Fkowhaiwhai.png?v=1609829230478"
-    );
+    // game over assets preload in intro-scene
   }
   // Game Over scene create
   create() {
+    this.cameras.main.setBackgroundColor("lightgrey");
     // destroy player
-    this.player.destroy();
+    if (this.player) {
+      this.player.destroy();
+    }
 
     taiahaObj.taiahaPartsCollected = 0;
     taiahaObj.taiahaCollected = false;
@@ -804,13 +869,20 @@ class GameWin extends Phaser.Scene {
 
   create() {
     WebFont.load({
-      google: { families: ["Freckle Face", "Finger Paint", "Nosifer"] }
-    })
-    winText = this.add.text(game.config.width / 2, game.config.height / 2, "Nga Mihi Tane! For freeing all the birds you have earned another piece of your dream!", {
-      fontFamily: "Freckle Face",
-      fontSize: 50,
-      color: '#ffffff'
-    }).setShadow(2, 2, "#333333", 2, false, true)
+      google: { families: ["Freckle Face", "Finger Paint", "Nosifer"] },
+    });
+    winText = this.add
+      .text(
+        game.config.width / 2,
+        game.config.height / 2,
+        "Nga Mihi Tane! For freeing all the birds you have earned another piece of your dream!",
+        {
+          fontFamily: "Freckle Face",
+          fontSize: 50,
+          color: "#ffffff",
+        }
+      )
+      .setShadow(2, 2, "#333333", 2, false, true);
   }
 }
 
@@ -872,9 +944,9 @@ class GameHud extends Phaser.Scene {
             200,
             50,
             "Parts Collected: " +
-            taiahaObj.taiahaPartsCollected +
-            "/" +
-            taiahaObj.totalTaiahaParts,
+              taiahaObj.taiahaPartsCollected +
+              "/" +
+              taiahaObj.totalTaiahaParts,
             {
               fontFamily: "Freckle Face",
               fontSize: 40,
@@ -906,15 +978,37 @@ class GameHud extends Phaser.Scene {
       repeat: -1,
     });
     this.anims.create({
-      key: 'hedgehogRun',
-      frames: 'hedgehogRun',
+      key: "hedgehogRun",
+      frames: "hedgehogRun",
       frameRate: 12,
-      repeat: -1
-    })
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "dreamDiamond",
+      frames: "dreamDiamond",
+      frameRate: 15,
+      repeat: -1,
+    });
+    this.anims.create({
+      key: "fireworksBlue",
+      frames: "fireworksBlue",
+      frameRate: 30,
+    });
+    this.anims.create({
+      key: "fireworksBlue2",
+      frames: "fireworksBlue2",
+      frameRate: 30,
+    });
+    this.anims.create({
+      key: "fireworksRocket",
+      frames: "fireworksRocket",
+      frameRate: 30,
+      repeat: -1,
+    });
 
     let taiahaScale = 0.4;
 
-    let greyTaiaha = this.add.image(200, 80, "grey-taiaha");
+    greyTaiaha = this.add.image(200, 80, "grey-taiaha");
     greyTaiaha.setScale(taiahaScale, taiahaScale);
 
     tongueTaiaha = this.add.image(200, 80, "tongue-taiaha");
@@ -949,7 +1043,7 @@ class GameHud extends Phaser.Scene {
   }
 
   // method to be executed at each frame
-  update() { }
+  update() {}
 }
 
 /* ======================
@@ -957,22 +1051,40 @@ class GameHud extends Phaser.Scene {
 =========================*/
 class GamePlay extends Phaser.Scene {
   constructor() {
-    super("game-play");
+    super({
+      key: "game-play",
+    });
   }
   init() {
     this.scene.launch("game-hud");
     this.jumptimer = 0;
     this.isOnPlatform = false;
     this.currentPlatform = null;
-    this.attackFinished = false
-    this.movingPlatform = null
-    this.previousBounds = {}
+    this.attackFinished = false;
+    this.movingPlatform = null;
+    this.previousBounds = {};
   }
   preload() {
-
+    // font plugin
+    this.plugins.get("rexwebfontloaderplugin").addToScene(this);
+    this.load.rexWebFont({
+      google: {
+        families: ["Freckle Face", "Finger Paint", "Nosifer"],
+      },
+    });
+    this.load.scenePlugin(
+      "rexuiplugin",
+      "https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js",
+      "rexUI",
+      "rexUI"
+    );
   }
 
   create() {
+    console.log('this.cameras.main.height',this.cameras.main.height);
+    console.log('this.cameras.main.width',this.cameras.main.width);
+    console.log('game.config.width',game.config.width);
+
     this.scene.stop("game-intro");
     // ====================== map =============================
     const map = this.make.tilemap({
@@ -1002,7 +1114,7 @@ class GamePlay extends Phaser.Scene {
     // this.ambience = this.sound.add("ambience", ambienceConfig)
     this.whoosh = this.sound.add("whoosh", fxConfig);
 
-    // this.music.play(this.musicConfig);
+    this.music.play(this.musicConfig);
     // this.ambience.play(this.ambienceConfig)
 
     // ====================== background =============================
@@ -1180,27 +1292,27 @@ class GamePlay extends Phaser.Scene {
       key: "tuiIdle",
       frames: "tuiIdle",
       frameRate: 3,
-      repeat: -1
-    })
+      repeat: -1,
+    });
     this.anims.create({
-      key: 'tuiFlying',
-      frames: 'tuiFlying',
+      key: "tuiFlying",
+      frames: "tuiFlying",
       frameRate: 10,
-      repeat: -1
-    })
+      repeat: -1,
+    });
 
     this.anims.create({
-      key: 'huiaIdle',
-      frames: 'huiaIdle',
+      key: "huiaIdle",
+      frames: "huiaIdle",
       frameRate: 3,
-      repeat: -1
-    })
+      repeat: -1,
+    });
     this.anims.create({
-      key: 'huiaFlying',
-      frames: 'huiaFlying',
+      key: "huiaFlying",
+      frames: "huiaFlying",
       frameRate: 10,
-      repeat: -1
-    })
+      repeat: -1,
+    });
 
     this.anims.create({
       key: "magicAnim",
@@ -1209,11 +1321,11 @@ class GamePlay extends Phaser.Scene {
     });
 
     this.anims.create({
-      key: 'hedgehogRun',
-      frames: 'hedgehogRun',
+      key: "hedgehogRun",
+      frames: "hedgehogRun",
       frameRate: 12,
-      repeat: -1
-    })
+      repeat: -1,
+    });
 
     this.anims.create({
       key: "bee",
@@ -1252,10 +1364,11 @@ class GamePlay extends Phaser.Scene {
       allowGravity: false,
       immovable: true,
     });
-    this.boundObjects = this.physics.add.group({
-      allowGravity: false,
-      immovable: true,
-    })
+    this.boundObjects = this.physics.add
+      .group({
+        allowGravity: false,
+        immovable: true,
+      })
       .setVisible(false);
     // Moving
     this.enemyObjects = this.physics.add.group({
@@ -1281,41 +1394,26 @@ class GamePlay extends Phaser.Scene {
       .setDepth(1001)
       .setVisible(false);
 
-    var cagesObjs = map.filterObjects(
-      "Cages",
-      (obj) => obj.type == "cage"
-    );
-    var kiwiObjs = map.filterObjects(
-      "Birds",
-      (obj) => obj.type == "kiwi"
-    );
-    var tuiObjs = map.filterObjects(
-      "Birds",
-      (obj) => obj.type == "tui"
-    )
-    var huiaObjs = map.filterObjects(
-      "Birds",
-      (obj) => obj.type == "huia"
-    )
+    var cagesObjs = map.filterObjects("Cages", (obj) => obj.type == "cage");
+    var kiwiObjs = map.filterObjects("Birds", (obj) => obj.type == "kiwi");
+    var tuiObjs = map.filterObjects("Birds", (obj) => obj.type == "tui");
+    var huiaObjs = map.filterObjects("Birds", (obj) => obj.type == "huia");
 
-    var taiahaObjs = map.getObjectLayer("Tools").objects
+    var taiahaObjs = map.getObjectLayer("Tools").objects;
 
     var hedgehogObjs = map.filterObjects(
       "Enemies",
       (obj) => obj.type == "hedgehog"
     );
 
-    var beeObjs = map.filterObjects(
-      "Enemies",
-      (obj) => obj.type == "bee"
-    );
+    var beeObjs = map.filterObjects("Enemies", (obj) => obj.type == "bee");
     var beeVerticalObjs = map.filterObjects(
       "Enemies",
       (obj) => obj.type == "beeV"
     );
 
     var boundObjs = map.getObjectLayer("Bounds");
-    var spikeObjs = map.getObjectLayer('Spikes');
+    var spikeObjs = map.getObjectLayer("Spikes");
 
     var horizontalPlatformObjs = map.filterObjects(
       "Platforms_moving",
@@ -1328,17 +1426,16 @@ class GamePlay extends Phaser.Scene {
 
     console.log("verticalPlatformObjs", verticalPlatformObjs);
 
-
     // ----- Bird Cages
     cagesObjs.forEach((cageObj) => {
       let cage = this.cagesObjects
         .create(
           cageObj.x * mapScale,
-          cageObj.y * mapScale + mapYIndent,
+          cageObj.y * mapScale + (mapYIndent - 35),
           "kiwiCage"
         )
         .setOrigin(0, 0)
-        .setScale(mapScale, mapScale);
+        .setScale(0.7, 0.7);
       cage.name = cageObj.name;
       cage.type = cageObj.type;
       cage.setDepth(201);
@@ -1355,10 +1452,14 @@ class GamePlay extends Phaser.Scene {
     // ----- Kiwis
     kiwiObjs.forEach((kiwiObj) => {
       let kiwi = this.birdsObjects
-        .create(kiwiObj.x * mapScale, kiwiObj.y * mapScale + mapYIndent, "kiwi")
+        .create(
+          kiwiObj.x * mapScale - 20,
+          kiwiObj.y * mapScale + (mapYIndent - 50),
+          "kiwi"
+        )
         .setOrigin(0, 0)
-        .setScale(0.5, 0.5);
-      kiwi.body.setSize(kiwi.width - 30, kiwi.height - 50).setOffset(0, 13);
+        .setScale(1, 1);
+      kiwi.body.setSize(kiwi.width - 42, kiwi.height - 50).setOffset(22, 13);
       this.physics.add.collider(kiwi, platforms);
       this.physics.add.collider(kiwi, bridges);
       kiwi.name = kiwiObj.name;
@@ -1368,9 +1469,16 @@ class GamePlay extends Phaser.Scene {
     });
 
     tuiObjs.forEach((tuiObj) => {
-      let tui = this.birdsObjects.create(tuiObj.x * mapScale, tuiObj.y * mapScale + mapYIndent, "tuiIdle").setOrigin(0, 0).setScale(mapScale, mapScale);
+      let tui = this.birdsObjects
+        .create(
+          tuiObj.x * mapScale,
+          tuiObj.y * mapScale + (mapYIndent - 70),
+          "tuiIdle"
+        )
+        .setOrigin(0, 0)
+        .setScale(0.7, 0.7);
       // tui.body.setSize(tui.width - 30, tui.height - 25).setOffset(0, 13);
-      tui.body.setSize(tui.width, tui.height - 22)
+      tui.body.setSize(tui.width, tui.height - 22);
       this.physics.add.collider(tui, platforms);
       this.physics.add.collider(tui, bridges);
       tui.name = tuiObj.name;
@@ -1380,9 +1488,16 @@ class GamePlay extends Phaser.Scene {
     });
 
     huiaObjs.forEach((huiaObj) => {
-      let huia = this.birdsObjects.create(huiaObj.x * mapScale, huiaObj.y * mapScale + mapYIndent, "huiaIdle").setOrigin(0, 0).setScale(mapScale, mapScale);
+      let huia = this.birdsObjects
+        .create(
+          huiaObj.x * mapScale - 20,
+          huiaObj.y * mapScale + (mapYIndent - 70),
+          "huiaIdle"
+        )
+        .setOrigin(0, 0)
+        .setScale(1, 1);
       // tui.body.setSize(tui.width - 30, tui.height - 25).setOffset(0, 13);
-      huia.body.setSize(huia.width, huia.height - 50).setOffset(0, 40)
+      huia.body.setSize(huia.width - 42, huia.height - 50).setOffset(22, 40);
       this.physics.add.collider(huia, platforms);
       this.physics.add.collider(huia, bridges);
       huia.name = huiaObj.name;
@@ -1391,13 +1506,24 @@ class GamePlay extends Phaser.Scene {
       huia.play("huiaIdle", true);
     });
     // ----- Spikes
-    spikeObjs.objects.forEach(spikeObject => {
-      let spike = this.spikeObjects.create(spikeObject.x * mapScale,
-        spikeObject.y * mapScale + mapYIndent, 'spikes').setScale(mapScale).setOrigin(0, 1)
+    spikeObjs.objects.forEach((spikeObject) => {
+      let spike = this.spikeObjects
+        .create(
+          spikeObject.x * mapScale,
+          spikeObject.y * mapScale + mapYIndent,
+          "spikes"
+        )
+        .setScale(mapScale)
+        .setOrigin(0, 1);
       spike.body.setSize(spike.width, spike.height - 60).setOffset(0, 60);
-      this.physics.add.collider(this.player, spike, this.touchingEnemy, null, this);
-    })
-
+      this.physics.add.collider(
+        this.player,
+        spike,
+        this.touchingEnemy,
+        null,
+        this
+      );
+    });
 
     // ----- Taiaha
     let glowScale = 0.4;
@@ -1483,39 +1609,47 @@ class GamePlay extends Phaser.Scene {
       });
     });
 
-    hedgehogObjs.forEach(enemyObj => {
-
-      let enemy = null
-      enemy = this.enemyObjects.create(enemyObj.x * mapScale, (enemyObj.y * mapScale) + mapYIndent, 'hedgehogIdle').setOrigin(0, 0).setScale(3, 3)
-      enemy.body.setSize(((enemy.body.width) / 1.9), enemy.body.height / 3)
-      enemy.name = enemyObj.name
-      enemy.type = 'hedgehog'
-      let random = Phaser.Math.Between(1, 2)
+    hedgehogObjs.forEach((enemyObj) => {
+      let enemy = null;
+      enemy = this.enemyObjects
+        .create(
+          enemyObj.x * mapScale,
+          enemyObj.y * mapScale + mapYIndent,
+          "hedgehogIdle"
+        )
+        .setOrigin(0, 0)
+        .setScale(3, 3);
+      enemy.body.setSize(enemy.body.width / 1.9, enemy.body.height / 3);
+      enemy.name = enemyObj.name;
+      enemy.type = "hedgehog";
+      let random = Phaser.Math.Between(1, 2);
       switch (random) {
         case 1:
-          enemy.body.velocity.x = -enemyVelocity
+          enemy.body.velocity.x = -enemyVelocity;
         case 2:
-          enemy.body.velocity.x = enemyVelocity
+          enemy.body.velocity.x = enemyVelocity;
       }
 
-      enemy.play('hedgehogRun')
+      enemy.play("hedgehogRun");
     });
 
     beeObjs.forEach((beeObj, index) => {
       let bee = this.beeObjects
-        .create(
-          beeObj.x * mapScale,
-          beeObj.y * mapScale + mapYIndent,
-          "bee"
-        )
+        .create(beeObj.x * mapScale, beeObj.y * mapScale + mapYIndent, "bee")
         .setOrigin(0.5, 0.5)
         .setScale(1.5, 1.5)
-        .play("bee")
+        .play("bee");
       bee.name = beeObj.name;
 
       bee.type = beeObj.type;
       bee.setDepth(202);
-      this.physics.add.overlap(this.player, bee, this.touchingEnemy, null, this);
+      this.physics.add.overlap(
+        this.player,
+        bee,
+        this.touchingEnemy,
+        null,
+        this
+      );
     });
     // bee tween
     this.tweens.add({
@@ -1523,56 +1657,69 @@ class GamePlay extends Phaser.Scene {
       y: 100,
       yoyo: true,
       duration: 2000,
-      ease: 'Sine.easeInOut',
+      ease: "Sine.easeInOut",
       repeat: -1,
-      delay: this.tweens.stagger(1000)
+      delay: this.tweens.stagger(1000),
     });
     // vertical moving bees
     beeVerticalObjs.forEach((beeObj, index) => {
       let beeV = this.beeObjects
-        .create(
-          beeObj.x * mapScale,
-          beeObj.y * mapScale + mapYIndent,
-          "bee"
-        )
+        .create(beeObj.x * mapScale, beeObj.y * mapScale + mapYIndent, "bee")
         .setOrigin(0.5, 0.5)
         .setScale(1.5, 1.5)
-        .play("bee")
+        .play("bee");
       beeV.name = beeObj.name;
       // create obj in previousBound to store previous hit bound for this beeV
-      this.previousBounds[beeV.name] = { previous: "" }
+      this.previousBounds[beeV.name] = { previous: "" };
       beeV.type = beeObj.type;
       beeV.setDepth(202);
 
-      let random = Phaser.Math.Between(1, 2)
-      let randomSpeed = Phaser.Math.Between(150, 450)
+      let random = Phaser.Math.Between(1, 2);
+      let randomSpeed = Phaser.Math.Between(150, 450);
       switch (random) {
         case 1:
-          beeV.body.velocity.y = -enemyVelocity
+          beeV.body.velocity.y = -enemyVelocity;
         case 2:
-          beeV.body.velocity.y = enemyVelocity
+          beeV.body.velocity.y = enemyVelocity;
       }
 
-      this.physics.add.overlap(this.player, beeV, this.touchingEnemy, null, this);
+      this.physics.add.overlap(
+        this.player,
+        beeV,
+        this.touchingEnemy,
+        null,
+        this
+      );
       // passing in previousBounds and randomSpeed as variables to collider callback
-      this.physics.add.collider(beeV, this.boundObjects, this.beeVTouchingBound, null, { this: this, previousBounds: this.previousBounds, randomSpeed: randomSpeed });
+      this.physics.add.collider(
+        beeV,
+        this.boundObjects,
+        this.beeVTouchingBound,
+        null,
+        {
+          this: this,
+          previousBounds: this.previousBounds,
+          randomSpeed: randomSpeed,
+        }
+      );
     });
 
-
     boundObjs.objects.forEach((boundObj) => {
-      let boundBox = this.boundObjects.create(boundObj.x * mapScale, (boundObj.y * mapScale) + mapYIndent, null).setOrigin(0, 0).setVisible(false)
-      boundBox.setScale(1.5, 1.5)
-      boundBox.body.setSize(boundBox.width + 8, boundBox.height)
-      boundBox.setOffset(-4, 0)
+      let boundBox = this.boundObjects
+        .create(boundObj.x * mapScale, boundObj.y * mapScale + mapYIndent, null)
+        .setOrigin(0, 0)
+        .setVisible(false);
+      boundBox.setScale(1.5, 1.5);
+      boundBox.body.setSize(boundBox.width + 8, boundBox.height);
+      boundBox.setOffset(-4, 0);
       // boundBox.x = (boundObj.x * mapScale - 24)
       // boundBox.y = (((boundObj.y * mapScale) + mapYIndent) + 27)
-      boundBox.name = boundObj.name
-      boundBox.type = boundObj.type
+      boundBox.name = boundObj.name;
+      boundBox.type = boundObj.type;
     });
 
     // ----- Moving platforms
     verticalPlatformObjs.forEach((movingPlatformObj) => {
-
       let movingVerticalPlatform = this.movingPlatformObjects
         .create(
           movingPlatformObj.x * mapScale,
@@ -1583,27 +1730,43 @@ class GamePlay extends Phaser.Scene {
         .setScale(mapScale * 0.5, mapScale * 0.5);
 
       movingVerticalPlatform.name = movingPlatformObj.name;
-      this.previousBounds[movingVerticalPlatform.name] = { previous: "" }
+      this.previousBounds[movingVerticalPlatform.name] = { previous: "" };
       movingVerticalPlatform.type = movingPlatformObj.type;
       movingVerticalPlatform.setDepth(201);
 
-      let random = Phaser.Math.Between(1, 2)
-      let randomSpeed = Phaser.Math.Between(150, 350)
+      let random = Phaser.Math.Between(1, 2);
+      let randomSpeed = Phaser.Math.Between(150, 350);
       switch (random) {
         case 1:
-          movingVerticalPlatform.body.velocity.y = -randomSpeed
+          movingVerticalPlatform.body.velocity.y = -randomSpeed;
         case 2:
-          movingVerticalPlatform.body.velocity.y = randomSpeed
+          movingVerticalPlatform.body.velocity.y = randomSpeed;
       }
       //collider
       // player on platform
-      this.physics.add.collider(this.player, movingVerticalPlatform, this.collisionMovingPlatform, this.isCollisionFromTop, this);
+      this.physics.add.collider(
+        this.player,
+        movingVerticalPlatform,
+        this.collisionMovingPlatform,
+        this.isCollisionFromTop,
+        this
+      );
       // passing in previousBounds and randomSpeed as variables to collider callback
-      this.physics.add.collider(movingVerticalPlatform, this.boundObjects, this.platformVTouchingBound, null, { this: this, previousBounds: this.previousBounds, randomSpeed: randomSpeed });
+      this.physics.add.collider(
+        movingVerticalPlatform,
+        this.boundObjects,
+        this.platformVTouchingBound,
+        null,
+        {
+          this: this,
+          previousBounds: this.previousBounds,
+          randomSpeed: randomSpeed,
+        }
+      );
     });
 
     horizontalPlatformObjs.forEach((movingPlatformObj) => {
-      console.log('movingPlatformObj', movingPlatformObj);
+      console.log("movingPlatformObj", movingPlatformObj);
       let movingPlatform = this.movingPlatformObjects
         .create(
           movingPlatformObj.x * mapScale,
@@ -1638,23 +1801,26 @@ class GamePlay extends Phaser.Scene {
           },
         ],
         onUpdate: () => {
-          movingPlatform.vx = movingPlatform.body.position.x - movingPlatform.previousX;
-          movingPlatform.vy = movingPlatform.body.position.y - movingPlatform.previousY;
+          movingPlatform.vx =
+            movingPlatform.body.position.x - movingPlatform.previousX;
+          movingPlatform.vy =
+            movingPlatform.body.position.y - movingPlatform.previousY;
           movingPlatform.previousX = movingPlatform.body.position.x;
           movingPlatform.previousY = movingPlatform.body.position.y;
         },
       });
       //collider
       // player on platform
-      this.physics.add.collider(this.player, movingPlatform, this.collisionMovingPlatform, this.isCollisionFromTop, this);
+      this.physics.add.collider(
+        this.player,
+        movingPlatform,
+        this.collisionMovingPlatform,
+        this.isCollisionFromTop,
+        this
+      );
       // platform hits end box
       // this.physics.add.collider( movingPlatform, this.boundObjects,this.touchingBound, null, this);
     });
-
-
-
-
-
 
     // ====================== Colliders ======================
     this.physics.add.collider(this.player, platforms);
@@ -1664,21 +1830,56 @@ class GamePlay extends Phaser.Scene {
     this.physics.add.collider(this.enemyObjects, bridges);
 
     // bounds colliders
-    this.physics.add.collider(this.enemyObjects, this.boundObjects, this.touchingBound, null, this);
-    this.physics.add.collider(this.movingPlatformObjects, this.boundObjects, this.platformTouchingBound, null, this);
+    this.physics.add.collider(
+      this.enemyObjects,
+      this.boundObjects,
+      this.touchingBound,
+      null,
+      this
+    );
+    this.physics.add.collider(
+      this.movingPlatformObjects,
+      this.boundObjects,
+      this.platformTouchingBound,
+      null,
+      this
+    );
 
     //----- Key colliders/actions
     // this.physics.add.collider(this.player, this.levelObjects);
-    this.physics.add.overlap(this.player, this.birdsObjects, this.touchingBird, null, this);
-    this.physics.add.overlap(this.player, this.taiahaObjects, this.collectTaiaha, null, this);
-    this.physics.add.overlap(this.player, this.taiahaGlowObjects, this.touchingGlow, null, this);
-    this.physics.add.overlap(this.player, this.enemyObjects, this.touchingEnemy, null, this);
+    this.physics.add.overlap(
+      this.player,
+      this.birdsObjects,
+      this.touchingBird,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.player,
+      this.taiahaObjects,
+      this.collectTaiaha,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.player,
+      this.taiahaGlowObjects,
+      this.touchingGlow,
+      null,
+      this
+    );
+    this.physics.add.overlap(
+      this.player,
+      this.enemyObjects,
+      this.touchingEnemy,
+      null,
+      this
+    );
 
     // Add new key on the keyboard F, to use as attack button
     keyF = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
 
     this.playerAttacking = false;
-
   }
 
   /* ================================
@@ -1694,15 +1895,17 @@ class GamePlay extends Phaser.Scene {
     // ensures player sticks to moving platforms
 
     if (this.isOnPlatform && this.currentPlatform) {
-      console.log("current platform type = ", this.currentPlatform.type)
+      console.log("current platform type = ", this.currentPlatform.type);
       if (this.currentPlatform.type == "vertical") {
         // this.movingPlatform = this.currentPlatform
-        this.currentPlatform.vx = this.currentPlatform.body.position.x - this.currentPlatform.previousX;
-        this.currentPlatform.vy = this.currentPlatform.body.position.y - this.currentPlatform.previousY;
+        this.currentPlatform.vx =
+          this.currentPlatform.body.position.x - this.currentPlatform.previousX;
+        this.currentPlatform.vy =
+          this.currentPlatform.body.position.y - this.currentPlatform.previousY;
         this.currentPlatform.previousX = this.currentPlatform.body.position.x;
         this.currentPlatform.previousY = this.currentPlatform.body.position.y;
         // in the first instance there is no previousXY so return if NaN
-        if (isNaN(this.currentPlatform.vx)) return
+        if (isNaN(this.currentPlatform.vx)) return;
         // make playert xy change relative to movement of platforms
         this.player.body.position.x += this.currentPlatform.vx;
         // this.player.body.position.y += this.movingPlatform.vy;
@@ -1742,21 +1945,30 @@ class GamePlay extends Phaser.Scene {
         this.player.play("taneIdle", false);
       }
     }
-    if (this.player.body.velocity.x == 0) {
-      if (taiahaObj.taiahaCollected == true && taiahaObj.taiahaPartsCollected >= 4) {
-        if (keyF.isDown == true && this.player.body.onFloor() && this.playerAttacking == false) {
-          this.whoosh.play(this.fxConfig)
-          this.playerAttacking = true
-          this.player.play('taneAttack', false)
-          this.player.on('animationcomplete', (animation) => {
-            if (animation.key == 'taneAttack') {
-              this.playerAttacking = false
-              this.attackFinished = true
-            }
-          })
-        }
+    // if (this.player.body.velocity.x == 0) {
+    if (
+      taiahaObj.taiahaCollected == true &&
+      taiahaObj.taiahaPartsCollected >= 4
+    ) {
+      if (keyF.isDown == true && this.playerAttacking == false) {
+        this.playerAttacking = true;
+        this.whoosh.play(this.fxConfig);
+        this.player.play("taneAttack");
+        this.player.on("animationcomplete", (animation) => {
+          // if (animation.key == 'taneAttack') {
+          this.playerAttacking = false;
+          this.attackFinished = true;
+          console.log(
+            "attach finished. playerAttacking = ",
+            this.playerAttacking,
+            "attackFinished = ",
+            this.attackFinished
+          );
+          // }
+        });
       }
     }
+    // }
 
     // Player can jump while walking any direction by pressing the space bar
     if (this.cursors.space.isDown && this.player.body.onFloor()) {
@@ -1824,6 +2036,29 @@ class GamePlay extends Phaser.Scene {
   }
 
   // Other custom game functions
+  // ================ create labels function ========================
+  createLabel(scene, text, spaceTop, spaceBottom) {
+    console.log("creating label", text);
+    return scene.rexUI.add.label({
+      width: 40, // Minimum width of round-rectangle
+      height: 40, // Minimum height of round-rectangle
+      background: scene.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x8f80b6),
+      text: scene.add
+        .text(0, 0, text, {
+          fontFamily: "Freckle Face",
+          fontSize: "24px",
+          color: "#ffffff",
+        })
+        .setShadow(2, 2, "#333333", 2, false, true)
+        .setAlign("center"),
+      space: {
+        left: 10,
+        right: 10,
+        top: spaceTop,
+        bottom: spaceBottom,
+      },
+    });
+  }
   // ================ death function ========================
   playerHit(player, spike) {
     console.log("player was hit");
@@ -1835,7 +2070,7 @@ class GamePlay extends Phaser.Scene {
       repeat: 5,
     });
     console.log("player died");
-    // this.scene.start("game-over")
+    this.scene.start("game-over", { player: this.player });
   }
 
   // ================ open lock function ========================
@@ -1863,8 +2098,8 @@ class GamePlay extends Phaser.Scene {
         // add mauri flame
         this.addMauriFlame();
 
-        cage.destroy()
-        this.attackFinished == false
+        cage.destroy();
+        this.attackFinished == false;
       }
     }
   }
@@ -1872,40 +2107,49 @@ class GamePlay extends Phaser.Scene {
     if (taiahaObj.taiahaCollected == true) {
       if (player.body.velocity.x == 0) {
         if (keyF.isDown) {
-          let random = Phaser.Math.Between(1, 2)
+          this.sound.play("birdSound");
+          let random = Phaser.Math.Between(1, 2);
           if (bird.type == "kiwi") {
             console.log("go kiwi");
-            if (random == 1) { bird.setVelocityX(-200); } else { bird.setVelocityX(200) }
-            if (bird.body.velocity.x == 200) { bird.setFlipX(true) } else { bird.setFlipX(false) }
+            if (random == 1) {
+              bird.setVelocityX(-200);
+            } else {
+              bird.setVelocityX(200);
+            }
+            if (bird.body.velocity.x == 200) {
+              bird.setFlipX(true);
+            } else {
+              bird.setFlipX(false);
+            }
             bird.play("kiwiRun", true);
           } else if (bird.type == "tui") {
-            console.log("go tui")
-            bird.play("tuiFlying", true)
+            console.log("go tui");
+            bird.play("tuiFlying", true);
             this.tweens.add({
               targets: bird,
               x: bird.body.x - bird.body.x,
               y: bird.body.y - bird.body.y,
               duration: 4000,
-              ease: 'Sine.easeInOut',
+              ease: "Sine.easeInOut",
               onComplete: function (tween) {
-                tween.targets[0].destroy()
-                console.log('target destroyed')
-              }
-            })
+                tween.targets[0].destroy();
+                console.log("target destroyed");
+              },
+            });
           } else if (bird.type == "huia") {
-            console.log("go huia")
-            bird.play("huiaFlying", true)
+            console.log("go huia");
+            bird.play("huiaFlying", true);
             this.tweens.add({
               targets: bird,
               x: bird.body.x - bird.body.x,
               y: bird.body.y - bird.body.y,
               duration: 4000,
-              ease: 'Sine.easeInOut',
+              ease: "Sine.easeInOut",
               onComplete: function (tween) {
-                tween.targets[0].destroy()
-                console.log('target destroyed')
-              }
-            })
+                tween.targets[0].destroy();
+                console.log("target destroyed");
+              },
+            });
           }
         }
       }
@@ -1928,16 +2172,131 @@ class GamePlay extends Phaser.Scene {
 
     tally.setText(
       "Parts Collected: " +
-      taiahaObj.taiahaPartsCollected +
-      "/" +
-      taiahaObj.totalTaiahaParts
+        taiahaObj.taiahaPartsCollected +
+        "/" +
+        taiahaObj.totalTaiahaParts
     );
 
     if (taiahaObj.taiahaPartsCollected == 4) {
       console.log("ALL PARTS COLLECTED!");
+      tally.setText("Press F to use taiaha");
       taiahaObj.taiahaCollected = true;
+      // play sound
+      this.sound.play("dreamSound");
+
+      // center text: https://www.stephengarside.co.uk/blog/phaser-3-center-text-in-middle-of-screen/
+      const screenCenterX =
+        this.cameras.main.worldView.x + this.cameras.main.width / 2;
+      const screenCenterY =
+        this.cameras.main.worldView.y + this.cameras.main.height / 2;
+
+      // tween taiaha (fly in)
+      this.tweens.add({
+        targets: [
+          tongueTaiaha,
+          headTaiaha,
+          frontTaiaha,
+          backTaiaha,
+          greyTaiaha,
+        ],
+        x: screenCenterX,
+        y: screenCenterY * 0.4 + -100,
+        duration: 1000,
+        // ease: "Bounce", // 'Cubic', 'Elastic', 'Bounce', 'Back'
+        //repeat: -1, // -1: infinity
+        yoyo: true,
+        ease: "Sine.easeInOut",
+        // onComplete: function (tween) {
+        //   tween.targets[0].destroy()
+        //   console.log('target destroyed')
+        // }
+      });
+
+      this.dialog3 = this.rexUI.add
+        .dialog({
+          x: screenCenterX,
+          y: screenCenterY,
+          width: 200,
+          background: this.rexUI.add.roundRectangle(
+            0,
+            0,
+            100,
+            100,
+            10,
+            0x533d8e
+          ),
+          content: this.createLabel(
+            this,
+            'You have collected Tane\'s taiaha!!!\nPress " F " to use it',
+            20,
+            20
+          ),
+          actions: [this.createLabel(this, "OK", 10, 10)],
+          space: {
+            left: 20,
+            right: 20,
+            top: 50,
+            bottom: 20,
+            content: 20,
+            toolbarItem: 5,
+            choice: 15,
+            action: 15,
+            description: 25,
+            //  descriptionLeft: 200,
+            //  descriptionRight: 200,
+          },
+          align: {
+            content: "center",
+            description: "center",
+            actions: "right", // 'center'|'left'|'right'
+          },
+          click: {
+            mode: "release",
+          },
+        })
+        .layout()
+        //  .drawBounds(this.add.graphics(), 0xff0000)
+        .popUp(1000)
+        .setDepth(1003)
+        .setScrollFactor(1);
+      console.log("dialog3", this.dialog3);
+
+      this.dialog3.on(
+        "button.click",
+        function (button, groupName, index, pointer, event) {
+          console.log("button 3 clicked", button.text);
+          // if (button.text === "OK") {
+          this.dialog3.emit("modal.requestClose");
+          this.dialog3.destroy();
+
+          // tween taiaha (pulse)
+          this.tweens.add({
+            targets: [
+              tongueTaiaha,
+              headTaiaha,
+              frontTaiaha,
+              backTaiaha,
+              greyTaiaha,
+            ],
+            scaleX: 0.45,
+            scaleY: 0.45,
+            duration: 1000,
+            // ease: "Bounce", // 'Cubic', 'Elastic', 'Bounce', 'Back'
+            repeat: -1, // -1: infinity
+            yoyo: true,
+            ease: "Sine.easeInOut",
+            // onComplete: function (tween) {
+            //   tween.targets[0].destroy()
+            //   console.log('target destroyed')
+            // }
+          });
+          // }
+        },
+        this
+      );
     }
   }
+
   touchingGlow(player, glow) {
     glow.destroy();
   }
@@ -1950,14 +2309,15 @@ class GamePlay extends Phaser.Scene {
       .setScale(2)
       .setDepth(1003);
     mauriFlame.play("mauri1Anim", true);
-    mauriCount += 1
-    if (mauriCount == 6) {
-      console.log('ALL KIWIS FREED! ALL MAURI COLLECTED!')
-      this.finishGame()
+    mauriCount += 1;
+    if (mauriCount == 3) {
+      console.log("ALL KIWIS FREED! ALL MAURI COLLECTED!");
+      this.finishGame();
     }
   }
   touchingEnemy(player, enemy) {
-    // this.scene.start("game-over", { player: player });
+    console.log("trying to start game over");
+    this.scene.start("game-over", { player: this.player });
   }
   touchingBound(enemy, bound) {
     // was moving right
@@ -1973,7 +2333,6 @@ class GamePlay extends Phaser.Scene {
     // was moving up
     else if (enemy.body.velocity.y < 0 && enemy.body.velocity.x == 0) {
       enemy.body.velocity.y = enemyVelocity;
-
     }
     // was moving up
     else if (enemy.body.velocity.y > 0 && enemy.body.velocity.x == 0) {
@@ -1981,13 +2340,11 @@ class GamePlay extends Phaser.Scene {
     }
   }
   beeVTouchingBound(enemy, bound) {
-
     // check previous for this enemy
-    if (bound.name == this.previousBounds[enemy.name].previous) return
+    if (bound.name == this.previousBounds[enemy.name].previous) return;
 
     // was moving up
     if (enemy.body.velocity.y <= 0 && enemy.body.velocity.x == 0) {
-
       // enemy.body.velocity.y = enemyVelocity;
       enemy.body.velocity.y = this.randomSpeed;
     }
@@ -1998,8 +2355,7 @@ class GamePlay extends Phaser.Scene {
       enemy.body.velocity.y = -this.randomSpeed;
     }
 
-    this.previousBounds[enemy.name].previous = bound.name
-
+    this.previousBounds[enemy.name].previous = bound.name;
   }
   platformTouchingBound(platform, bound) {
     //make sure its not same as previous bound
@@ -2020,11 +2376,10 @@ class GamePlay extends Phaser.Scene {
     else if (platform.body.velocity.y > 0 && platform.body.velocity.x == 0) {
       platform.body.velocity.y = -platformVelocity;
     }
-
   }
   platformVTouchingBound(platform, bound) {
     //make sure its not same as previous bound
-    if (bound.name == this.previousBounds[platform.name].previous) return
+    if (bound.name == this.previousBounds[platform.name].previous) return;
 
     // was moving up
     if (platform.body.velocity.y < 0 && platform.body.velocity.x == 0) {
@@ -2035,7 +2390,7 @@ class GamePlay extends Phaser.Scene {
       platform.body.velocity.y = -this.randomSpeed;
     }
 
-    this.previousBounds[platform.name].previous = bound.name
+    this.previousBounds[platform.name].previous = bound.name;
   }
 
   collisionMovingPlatform(sprite, platform) {
@@ -2050,9 +2405,194 @@ class GamePlay extends Phaser.Scene {
     return platform.body.y > sprite.body.y;
   }
 
+  launchFireworks() {
+    this.sound.play("fireworksSound");
+    
+    const bottomOfScreen = this.cameras.main.height + 500
+    const rand1x = Phaser.Math.Between(0, 2000);
+    const rand1y = Phaser.Math.Between(200, 500);
+    const rand2x = Phaser.Math.Between(0, 2000);
+    const rand2y = Phaser.Math.Between(200, 500);
+    const fireworks = this.add
+      .sprite(rand1x, bottomOfScreen, "fireworksRocket")
+      .setDepth(1006);
+    const fireworks1 = this.add
+      .sprite(rand2x, bottomOfScreen, "fireworksRocket")
+      .setDepth(1006);
+    fireworks.play("fireworksRocket");
+    this.tweens
+      .add({
+        targets: fireworks,
+        y: bottomOfScreen - rand1y,
+        duration: 2000,
+        ease: "Power2",
+      })
+      .on("complete", (anim, frame) => {
+        fireworks.setScale(2);
+        fireworks.play("fireworksBlue");
+      });
+    this.tweens
+      .add({
+        targets: fireworks1,
+        y: bottomOfScreen - rand2y,
+        duration: 2500,
+        ease: "Power2",
+      })
+      .on("complete", (anim, frame) => {
+        fireworks1.setScale(2);
+        fireworks1.play("fireworksBlue");
+      });
+  }
+ 
+
   finishGame() {
-    this.scene.start('game-win')
-    this.scene.stop('game-start')
-    this.scene.stop('game-hud')
+    // this.scene.start('game-win')
+    // this.scene.stop('game-start')
+    this.time.addEvent({
+      delay: 100,
+      callback: () => {
+        this.scene.stop("game-hud");
+
+        this.gameFinished = true;
+        console.log("game finished");
+
+         //================= FIREWORKS =================
+  this.launchFireworks();
+  // launch fireworks to the amount of dreams collected
+  for (var i = 1; i < 10; i++) {
+    this.time.addEvent({
+      delay: i * 1000,
+      callback: this.launchFireworks,
+      callbackScope: this,
+    });
+  }
+
+        this.sound.play("cheer");
+
+              // center text: https://www.stephengarside.co.uk/blog/phaser-3-center-text-in-middle-of-screen/
+      const screenCenterX =
+      this.cameras.main.worldView.x + this.cameras.main.width / 2;
+    const screenCenterY =
+      this.cameras.main.worldView.y + this.cameras.main.height / 2;
+
+        this.dialog4 = this.rexUI.add
+          .dialog({
+            x: screenCenterX,
+            y: screenCenterY,
+            width: 200,
+            background: this.rexUI.add.roundRectangle(
+              0,
+              0,
+              100,
+              100,
+              10,
+              0x533d8e
+            ),
+            content: this.createLabel(this, "Thank you for freeing the manu!!!\nYou have recieved another\npiece of your dream.", 20, 20),
+            description: this.add
+            .sprite({
+              x: 0,
+              y: 0,
+              key: "dreamDiamond",
+            })
+            .play("dreamDiamond")
+            .setDisplaySize(150, 150),
+            actions: [this.createLabel(this, "NEXT", 10, 10)],
+            space: {
+              left: 20,
+              right: 20,
+              top: 50,
+              bottom: 20,
+              content: 20,
+              toolbarItem: 5,
+              choice: 15,
+              action: 15,
+              description: 25,
+               descriptionLeft: 100,
+               descriptionRight: 100,
+            },
+            align: {
+              content: "center",
+              description: "center",
+              actions: "center", // 'center'|'left'|'right'
+            },
+            click: {
+              mode: "release",
+            },
+          })
+          .layout()
+          //  .drawBounds(this.add.graphics(), 0xff0000)
+          .popUp(1000)
+          .setDepth(1003);
+
+        this.dialog5 = this.rexUI.add
+          .dialog({
+            x: screenCenterX,
+            y: screenCenterY,
+            width: 200,
+            background: this.rexUI.add.roundRectangle(
+              0,
+              0,
+              100,
+              100,
+              10,
+              0x533d8e
+            ),
+            content: this.createLabel(this, "What strengths do you have?\nWhat skills or qualities \nmight you need to help you \nreach your moemoeā?", 20, 20),
+            actions: [this.createLabel(this, "DONE", 10, 10)],
+            space: {
+              left: 20,
+              right: 20,
+              top: 50,
+              bottom: 20,
+              content: 20,
+              toolbarItem: 5,
+              choice: 15,
+              action: 15,
+              description: 25,
+              //  descriptionLeft: 200,
+              //  descriptionRight: 200,
+            },
+            align: {
+              content: "center",
+              description: "center",
+              actions: "center", // 'center'|'left'|'right'
+            },
+            click: {
+              mode: "release",
+            },
+          })
+          .layout()
+          //  .drawBounds(this.add.graphics(), 0xff0000)
+          .popUp(1000)
+          .setDepth(1003)
+          this.dialog5.setVisible(false);
+
+
+          this.dialog4.on(
+            "button.click",
+            function (button) {
+              if (button.text === "NEXT") {
+                this.dialog4.setVisible(false);
+                this.dialog5.setVisible(true).popUp(1000);
+              }
+            },
+            this
+          );
+      
+          this.dialog5.on(
+            "button.click",
+            function (button) {
+              if (button.text === "DONE") {
+                console.log("starting game");
+                // this.scene.start("game-hud")
+                this.scene.start("game-play");
+              }
+            },
+            this
+          );
+
+      },
+    });
   }
 }
